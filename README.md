@@ -2,6 +2,16 @@
 
 A new Flutter project.
 
+## Flutter Version
+- Flutter 3.27.2
+- channel stable
+- https://github.com/flutter/flutter.git Framework 
+- revision 68415ad1d9 (4 months ago) 
+- 2025-01-13 10:22:03 -0800 Engine 
+- revision e672b006cb Tools 
+- Dart 3.6.1 
+- DevTools 2.40.2
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
