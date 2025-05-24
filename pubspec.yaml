@@ -1,0 +1,61 @@
+name: aplikasiservicemotor
+description: "Aplikasi Service Motor"
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  flutter_native_splash: ^2.4.0 # <-- DEPENDENSI BARU DITAMBAHKAN
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0 # Anda bisa sesuaikan dengan versi terbaru jika ada warning
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/app_logo.jpeg
+
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+
+# --- KONFIGURASI BARU UNTUK FLUTTER NATIVE SPLASH ---
+# Pastikan bagian ini sejajar dengan 'name:', 'dependencies:', 'flutter:'
+flutter_native_splash:
+  # Warna latar belakang untuk splash screen native.
+  # Ini adalah warna kuning yang sama dengan SplashScreen.dart kustom Anda (0xFFFDEB71).
+  color: "#FDEB71"
+
+  # Kita tidak menambahkan 'image' di sini agar logo aplikasi Anda
+  # pertama kali muncul di SplashScreen.dart kustom kita, bukan di native splash.
+  # Ini memberikan transisi yang lebih halus.
+  # Jika Anda ingin logo juga muncul di native splash, tambahkan baris:
+  # image: assets/images/app_logo.jpeg
+
+  # Aktifkan untuk platform yang diinginkan
+  android: true
+  ios: true
+
+  # Opsi lanjutan untuk Android 12+ (jika Anda menggunakan 'image' di atas)
+  # android_12:
+  #   image: assets/images/app_logo.jpeg # atau path ke ikon adaptif jika ada
+  #   icon_background_color: "#FDEB71"
