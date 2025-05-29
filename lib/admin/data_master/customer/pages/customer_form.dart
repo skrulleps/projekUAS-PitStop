@@ -1,5 +1,7 @@
 import 'dart:typed_data';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pitstop/admin/data_master/customer/service/customer_service.dart';
 
@@ -37,11 +39,21 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
       _isSaving = true;
     });
 
+    String? avatarPath;
+    if (_photoBytes != null) {
+      // Buat file sementara dari _photoBytes
+      final tempDir = await getTemporaryDirectory();
+      final file = await File('${tempDir.path}/temp_avatar.jpg').writeAsBytes(_photoBytes!);
+
+      // Upload foto ke bucket avatar
+      avatarPath = await CustomerService().uploadAvatar(file);
+    }
+
     final customerData = {
       'full_name': _fullNameController.text.trim(),
       'phone': _phoneController.text.trim(),
       'address': _addressController.text.trim(),
-      'photos': _photoBytes,
+      'photos': avatarPath,
     };
 
     final success = await CustomerService().addCustomer(customerData);

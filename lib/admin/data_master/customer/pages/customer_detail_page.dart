@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import '../model/customer_model.dart';
+import '../service/customer_service.dart';
 
 class CustomerDetailPage extends StatelessWidget {
   final CustomerModel customer;
+  final CustomerService _customerService = CustomerService();
 
-  const CustomerDetailPage({Key? key, required this.customer}) : super(key: key);
+  CustomerDetailPage({Key? key, required this.customer}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    String? photoPath = customer.photos;
+    String? photoUrl = photoPath != null && photoPath.isNotEmpty
+        ? _customerService.getAvatarUrl(photoPath)
+        : null;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(customer.fullName ?? 'Detail Customer'),
@@ -19,10 +26,10 @@ class CustomerDetailPage extends StatelessWidget {
             Center(
               child: CircleAvatar(
                 radius: 60,
-                backgroundImage: customer.photosBytes != null
-                    ? MemoryImage(customer.photosBytes!)
+                backgroundImage: photoUrl != null
+                    ? NetworkImage(photoUrl)
                     : null,
-                child: customer.photosBytes == null
+                child: photoUrl == null
                     ? const Icon(Icons.person, size: 60)
                     : null,
               ),
