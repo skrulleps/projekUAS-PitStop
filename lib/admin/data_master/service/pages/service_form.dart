@@ -107,7 +107,7 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
                 controller: _priceController,
                 decoration: const InputDecoration(labelText: 'Price'),
                 validator: (value) => value == null || value.isEmpty ? 'Price wajib diisi' : null,
-                keyboardType: TextInputType.text,
+                keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 24),
               ElevatedButton(

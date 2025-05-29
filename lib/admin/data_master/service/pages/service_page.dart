@@ -113,7 +113,14 @@ class _ServicePageState extends State<ServicePage> {
                     final service = _services[index];
                     return ListTile(
                       title: Text(service.serviceName ?? '-'),
-                      subtitle: Text(service.description ?? '-'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(service.description ?? '-'),
+                          const SizedBox(height: 4),
+                          Text('Harga: Rp ${service.price ?? '-'}'),
+                        ],
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

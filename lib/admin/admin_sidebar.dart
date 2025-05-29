@@ -78,7 +78,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
               ListTile(
                 title: const Text('Data Booking'),
                 onTap: () {
-                  context.go('/admin/booking/data-booking');
+                  context.go('/admin/data-booking');
                 },
               ),
             ],
