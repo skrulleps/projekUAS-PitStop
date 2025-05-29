@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:pitstop/admin/data_master/service/pages/service_page.dart';
 import 'package:pitstop/auth/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'admin/admin_dashboard_page.dart';
-import 'admin/admin_sidebar.dart';
+// import 'admin/admin_sidebar.dart';
 import 'admin/data_master/account/data_akun_page.dart';
-import 'admin/data_booking_page.dart';
+// import 'admin/data_booking_page.dart';
 import 'package:pitstop/admin/data_master/customer/customer_page.dart';
 import 'admin/data_master/mechanic/mechanic_page.dart';
 import 'admin/data_master/mechanic/pages/mechanic_form.dart';
 import 'auth/login/login_page.dart';
 import 'auth/register/register_page.dart';
 import 'home/home_page.dart';
-import 'admin/data_master/account/data_akun_page.dart';
 import 'package:pitstop/splash_screen.dart';
 import 'package:pitstop/home/profile_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -122,7 +122,7 @@ final _router = GoRouter(
             GoRoute(
               path: 'data-jenis-servis',
               builder: (context, state) =>
-                  const DataBookingPage(), // Placeholder, should create DataJenisServisPage
+                  const ServicePage(), // Placeholder, should create DataJenisServisPage
             ),
           ],
         ),
