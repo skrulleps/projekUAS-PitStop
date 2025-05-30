@@ -149,30 +149,74 @@ class _BookingFormPageState extends State<BookingFormPage> {
     }
   }
 
-  Future<void> _selectDate() async {
+  // Remove _selectDate and _selectTime methods
+
+  // New method to generate list of next 7 days starting from today
+  List<DateTime> _generateNext7Days() {
     final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? now,
-      firstDate: now,
-      lastDate: DateTime(now.year + 5),
-    );
-    if (picked != null) {
+    return List.generate(7, (index) => now.add(Duration(days: index)));
+  }
+
+  // New method to generate time slots from 09:00 to 17:00
+  List<TimeOfDay> _generateTimeSlots() {
+    final List<TimeOfDay> slots = [];
+    for (int hour = 9; hour <= 17; hour++) {
+      slots.add(TimeOfDay(hour: hour, minute: 0));
+    }
+    return slots;
+  }
+
+  // New method to check if a time slot is booked
+  bool _isTimeSlotBooked(TimeOfDay slot, List<BookingModel> bookings) {
+    for (var booking in bookings) {
+      if (booking.bookingsTime != null) {
+        final parts = booking.bookingsTime!.split(':');
+        if (parts.length >= 2) {
+          final bookedHour = int.tryParse(parts[0]);
+          final bookedMinute = int.tryParse(parts[1]);
+          if (bookedHour == slot.hour && bookedMinute == slot.minute) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  // New state to hold bookings for selected date and mechanic
+  List<BookingModel> _bookingsForSelectedDateAndMechanic = [];
+
+  // New method to load bookings for selected date and mechanic
+  Future<void> _loadBookingsForSelectedDateAndMechanic() async {
+    if (_selectedDate != null && _selectedMechanicId != null) {
+      final bookings = await _bookingService.getBookingsByDateAndMechanic(_selectedDate!, _selectedMechanicId!);
       setState(() {
-        _selectedDate = picked;
+        _bookingsForSelectedDateAndMechanic = bookings ?? [];
+      });
+    } else {
+      setState(() {
+        _bookingsForSelectedDateAndMechanic = [];
       });
     }
   }
 
-  Future<void> _selectTime() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime ?? TimeOfDay.now(),
-    );
-    if (picked != null) {
-      setState(() {
-        _selectedTime = picked;
-      });
+  // Update _selectedDate setter to load bookings
+  void _onDateSelected(DateTime date) {
+    setState(() {
+      _selectedDate = date;
+      _selectedTime = null; // reset selected time when date changes
+    });
+    _loadBookingsForSelectedDateAndMechanic();
+  }
+
+  // Update _selectedMechanicId setter to reload bookings if date is selected
+  void _onMechanicSelected(String? mechanicId) {
+    setState(() {
+      _selectedMechanicId = mechanicId;
+      _selectedTime = null; // reset selected time when mechanic changes
+    });
+    if (_selectedDate != null) {
+      _loadBookingsForSelectedDateAndMechanic();
     }
   }
 
@@ -286,17 +330,106 @@ class _BookingFormPageState extends State<BookingFormPage> {
                       validator: (value) => value == null || value.isEmpty ? 'Mekanik harus dipilih' : null,
                     ),
                     const SizedBox(height: 16),
-                    ListTile(
-                      title: const Text('Tanggal Booking'),
-                      subtitle: Text(dateText),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: _selectDate,
+                    // Replace date selection ListTile with horizontal 7-day picker
+                    const Text('Tanggal Booking'),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 60,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _generateNext7Days().length,
+                        itemBuilder: (context, index) {
+                          final date = _generateNext7Days()[index];
+                          final isSelected = _selectedDate != null &&
+                              date.year == _selectedDate!.year &&
+                              date.month == _selectedDate!.month &&
+                              date.day == _selectedDate!.day;
+                          final dayName = DateFormat.E().format(date); // e.g. Mon, Tue
+                          final dayNumber = date.day;
+                          final isFriday = date.weekday == DateTime.friday;
+                          return GestureDetector(
+                            onTap: isFriday ? null : () async {
+                              _onDateSelected(date);
+                              await _loadBookingsForSelectedDateAndMechanic();
+                            },
+                            child: Container(
+                              width: 60,
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              decoration: BoxDecoration(
+                                color: isFriday
+                                    ? Colors.grey[400]
+                                    : isSelected
+                                        ? Colors.blue
+                                        : Colors.grey[200],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    dayName,
+                                    style: TextStyle(
+                                      color: isFriday
+                                          ? Colors.grey[700]
+                                          : isSelected
+                                              ? Colors.white
+                                              : Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    dayNumber.toString(),
+                                    style: TextStyle(
+                                      color: isFriday
+                                          ? Colors.grey[700]
+                                          : isSelected
+                                              ? Colors.white
+                                              : Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                    ListTile(
-                      title: const Text('Waktu Booking'),
-                      subtitle: Text(timeText),
-                      trailing: const Icon(Icons.access_time),
-                      onTap: _selectTime,
+                    const SizedBox(height: 16),
+                    const Text('Waktu Booking'),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      children: _generateTimeSlots().map((slot) {
+                        final isBooked = _isTimeSlotBooked(slot, _bookingsForSelectedDateAndMechanic);
+                        final isSelected = _selectedTime != null &&
+                            _selectedTime!.hour == slot.hour &&
+                            _selectedTime!.minute == slot.minute;
+                        return ChoiceChip(
+                          label: Text('${slot.hour.toString().padLeft(2, '0')}:00'),
+                          selected: isSelected,
+                          onSelected: isBooked
+                              ? null
+                              : (selected) {
+                                  if (selected) {
+                                    setState(() {
+                                      _selectedTime = slot;
+                                    });
+                                  }
+                                },
+                          disabledColor: Colors.grey[300],
+                          selectedColor: Colors.blue,
+                          labelStyle: TextStyle(
+                            color: isBooked
+                                ? Colors.grey
+                                : isSelected
+                                    ? Colors.white
+                                    : Colors.black,
+                          ),
+                        );
+                      }).toList(),
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(

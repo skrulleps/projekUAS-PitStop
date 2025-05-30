@@ -1,0 +1,64 @@
+icon: const Icon(Icons.picture_as_pdf),
+                tooltip: 'Print Bookings',
+                onPressed: () async {
+                  if (_bookings.isNotEmpty) {
+                    final bookingPrintService = BookingPrintService();
+
+                    // Prepare maps for user full names, mechanic full names, and service names
+                    Map<String, String> userFullNamesById = {
+                      for (var c in customers) c.usersId ?? '': c.fullName ?? '-'
+                    };
+                    Map<String, String> mechanicFullNamesById = {
+                      for (var m in mechanics) m.id ?? '': m.fullName ?? '-'
+                    };
+                    Map<String, String> serviceNamesById = {
+                      for (var s in services) s.id ?? '': s.serviceName ?? '-'
+                    };
+
+                    await bookingPrintService.printBookings(
+                      _bookings,
+                      userFullNamesById,
+                      mechanicFullNamesById,
+                      serviceNamesById,
+                    );
+                  }
+                },
+              ),
+=======
+              IconButton(
+                icon: const Icon(Icons.picture_as_pdf),
+                tooltip: 'Print Bookings',
+                onPressed: () async {
+                  if (_bookings.isNotEmpty) {
+                    final bookingPrintService = BookingPrintService();
+
+                    // Prepare maps for user full names and mechanic full names
+                    Map<String, String> userFullNamesById = {
+                      for (var c in customers) c.usersId ?? '': c.fullName ?? '-'
+                    };
+                    Map<String, String> mechanicFullNamesById = {
+                      for (var m in mechanics) m.id ?? '': m.fullName ?? '-'
+                    };
+
+                    // Prepare map for userId to concatenated service names
+                    Map<String, String> serviceNamesByUserId = {};
+                    for (var booking in _bookings) {
+                      final userId = booking.usersId ?? '';
+                      if (!serviceNamesByUserId.containsKey(userId)) {
+                        final servicesList = await _bookingService.getServicesByUserId(userId);
+                        if (servicesList != null) {
+                          final serviceNames = servicesList.map((s) => s.serviceName ?? '-').join(', ');
+                          serviceNamesByUserId[userId] = serviceNames;
+                        }
+                      }
+                    }
+
+                    await bookingPrintService.printBookings(
+                      _bookings,
+                      userFullNamesById,
+                      mechanicFullNamesById,
+                      serviceNamesByUserId,
+                    );
+                  }
+                },
+              ),

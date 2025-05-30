@@ -102,7 +102,7 @@ class _EditBookingFormPageState extends State<EditBookingFormPage> {
       });
       return;
     }
-    final services = await _bookingService.getServicesByUserId(_selectedUserId);
+final services = await _bookingService.getServicesByUserId(_selectedUserId ?? '');
     setState(() {
       _selectedServices = services ?? [];
     });

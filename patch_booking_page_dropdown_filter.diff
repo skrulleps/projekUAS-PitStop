@@ -1,0 +1,531 @@
+final BookingService _bookingService = BookingService();
+  final CustomerService _customerService = CustomerService();
+  final MechanicService _mechanicService = MechanicService();
+  final ServiceService _serviceService = ServiceService();
+
+  List<BookingModel> _bookings = [];
+  List customers = [];
+  List mechanics = [];
+  List services = [];
+  bool _isLoading = true;
+=======
+class _BookingPageState extends State<BookingPage> {
+  final BookingService _bookingService = BookingService();
+  final CustomerService _customerService = CustomerService();
+  final MechanicService _mechanicService = MechanicService();
+  final ServiceService _serviceService = ServiceService();
+
+  List<BookingModel> _bookings = [];
+  List<BookingModel> _filteredBookings = [];
+  List customers = [];
+  List mechanics = [];
+  List services = [];
+  bool _isLoading = true;
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  @override
+  void initState() {
+    super.initState();
+    _fetchAllData();
+  }
+
+  Future<void> _fetchAllData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final bookings = await _bookingService.getBookings();
+    final customersData = await _customerService.getCustomers();
+    final mechanicsData = await _mechanicService.getMechanics();
+    final servicesData = await _serviceService.getServices();
+
+    // Group bookings by users_id to show only one ListTile per users_id
+    final Map<String?, BookingModel> uniqueBookings = {};
+    if (bookings != null) {
+      for (var booking in bookings) {
+        if (!uniqueBookings.containsKey(booking.usersId)) {
+          uniqueBookings[booking.usersId] = booking;
+        }
+      }
+    }
+    setState(() {
+      _bookings = uniqueBookings.values.toList();
+      customers = customersData ?? [];
+      mechanics = mechanicsData ?? [];
+      services = servicesData ?? [];
+      _isLoading = false;
+    });
+  }
+=======
+  @override
+  void initState() {
+    super.initState();
+    _fetchAllData();
+  }
+
+  Future<void> _fetchAllData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final bookings = await _bookingService.getBookings();
+    final customersData = await _customerService.getCustomers();
+    final mechanicsData = await _mechanicService.getMechanics();
+    final servicesData = await _serviceService.getServices();
+
+    // Group bookings by users_id to show only one ListTile per users_id
+    final Map<String?, BookingModel> uniqueBookings = {};
+    if (bookings != null) {
+      for (var booking in bookings) {
+        if (!uniqueBookings.containsKey(booking.usersId)) {
+          uniqueBookings[booking.usersId] = booking;
+        }
+      }
+    }
+    setState(() {
+      _bookings = uniqueBookings.values.toList();
+      customers = customersData ?? [];
+      mechanics = mechanicsData ?? [];
+      services = servicesData ?? [];
+      _isLoading = false;
+    });
+    _applyFilter();
+  }
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  void _navigateToAdd() async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const BookingFormPage()),
+    );
+    if (result == true) {
+      _fetchAllData();
+    }
+  }
+=======
+  void _navigateToAdd() async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const BookingFormPage()),
+    );
+    if (result == true) {
+      _fetchAllData();
+    }
+  }
+
+  void _applyFilter() {
+    setState(() {
+      if (_selectedStatus == null || _selectedStatus == 'All') {
+        _filteredBookings = _bookings;
+      } else {
+        _filteredBookings = _bookings
+            .where((booking) =>
+                booking.status?.toLowerCase() ==
+                _selectedStatus?.toLowerCase())
+            .toList();
+      }
+    });
+  }
+
+  void _onStatusChanged(String? newStatus) {
+    _selectedStatus = newStatus;
+    _applyFilter();
+  }
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Daftar Booking'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'Print Bookings',
+            onPressed: () async {
+              if (_bookings.isNotEmpty) {
+                final bookingPrintService = BookingPrintService();
+
+                // Prepare maps for user full names, mechanic full names, and service names
+                Map<String, String> userFullNamesById = {
+                  for (var c in customers) c.usersId ?? '': c.fullName ?? '-'
+                };
+                Map<String, String> mechanicFullNamesById = {
+                  for (var m in mechanics) m.id ?? '': m.fullName ?? '-'
+                };
+                Map<String, String> serviceNamesById = {
+                  for (var s in services) s.id ?? '': s.serviceName ?? '-'
+                };
+
+                await bookingPrintService.printBookings(
+                  _bookings,
+                  userFullNamesById,
+                  mechanicFullNamesById,
+                  serviceNamesById,
+                );
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: _navigateToAdd,
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _bookings.isEmpty
+              ? const Center(child: Text('Belum ada data booking'))
+              : ListView.builder(
+                  itemCount: _bookings.length,
+                  itemBuilder: (context, index) {
+                    final booking = _bookings[index];
+
+                    // Prepare maps for user and mechanic full names
+                    Map<String, String> userFullNamesById = {
+                      for (var c in customers)
+                        c.usersId ?? '': c.fullName ?? '-'
+                    };
+                    Map<String, String> mechanicFullNamesById = {
+                      for (var m in mechanics) m.id ?? '': m.fullName ?? '-'
+                    };
+
+                    final userFullName =
+                        userFullNamesById[booking.usersId] ?? '-';
+                    final mechanicFullName =
+                        mechanicFullNamesById[booking.mechanicsId] ?? '-';
+                    final bookingDate = booking.bookingsDate != null
+                        ? '${booking.bookingsDate!.toLocal().toIso8601String().split("T")[0]}'
+                        : '-';
+                    final bookingTime = booking.bookingsTime ?? '-';
+
+                    return ListTile(
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userFullName,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text('Mechanic : $mechanicFullName'),
+                        ],
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.calendar_today, size: 16),
+                              const SizedBox(width: 4),
+                              Text(bookingDate),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              const Icon(Icons.access_time, size: 16),
+                              const SizedBox(width: 4),
+                              Text(bookingTime),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              const Icon(Icons.info_outline, size: 16),
+                              const SizedBox(width: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: booking.status?.toLowerCase() == 'pending'
+                                      ? Colors.yellow.withOpacity(0.2)
+                                      : booking.status?.toLowerCase() == 'on progress'
+                                          ? Colors.orange.withOpacity(0.2)
+                                          : booking.status?.toLowerCase() == 'confirmed'
+                                              ? Colors.blue.withOpacity(0.2)
+                                              : booking.status?.toLowerCase() == 'done'
+                                                  ? Colors.green.withOpacity(0.2)
+                                                  : booking.status?.toLowerCase() == 'cancelled'
+                                                      ? Colors.red.withOpacity(0.2)
+                                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  booking.status ?? '-',
+                                  style: TextStyle(
+                                  color: booking.status?.toLowerCase() == 'pending'
+                                      ? Colors.yellow[800]
+                                      : booking.status?.toLowerCase() == 'on progress'
+                                          ? Colors.orange
+                                          : booking.status?.toLowerCase() == 'confirmed'
+                                              ? Colors.blue
+                                              : booking.status?.toLowerCase() == 'done'
+                                                  ? Colors.green
+                                                  : booking.status?.toLowerCase() == 'cancelled'
+                                                      ? Colors.red
+                                                      : Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => _navigateToEdit(booking),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () {
+                              if (booking.id != null) {
+                                _deleteBooking(booking.id!);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      onTap: () async {
+                        final services = await _bookingService
+                            .getServicesByUserId(booking.usersId);
+                        if (services != null) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => BookingDetailFormPage(
+                                booking: booking,
+                                services: services,
+                                profiles: customers
+                                    .map((c) => {
+                                          'users_id': c.usersId,
+                                          'full_name': c.fullName,
+                                        })
+                                    .toList(),
+                                mechanics: mechanics
+                                    .map((m) => {
+                                          'id': m.id,
+                                          'full_name': m.fullName,
+                                        })
+                                    .toList(),
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  },
+                ),
+    );
+  }
+}
+=======
+  @override
+  Widget build(BuildContext context) {
+    final statusOptions = <String>[
+      'All',
+      'Pending',
+      'On Progress',
+      'Confirmed',
+      'Done',
+      'Cancelled',
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Daftar Booking'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.picture_as_pdf),
+            tooltip: 'Print Bookings',
+            onPressed: () async {
+              if (_bookings.isNotEmpty) {
+                final bookingPrintService = BookingPrintService();
+
+                // Prepare maps for user full names, mechanic full names, and service names
+                Map<String, String> userFullNamesById = {
+                  for (var c in customers) c.usersId ?? '': c.fullName ?? '-'
+                };
+                Map<String, String> mechanicFullNamesById = {
+                  for (var m in mechanics) m.id ?? '': m.fullName ?? '-'
+                };
+                Map<String, String> serviceNamesById = {
+                  for (var s in services) s.id ?? '': s.serviceName ?? '-'
+                };
+
+                await bookingPrintService.printBookings(
+                  _bookings,
+                  userFullNamesById,
+                  mechanicFullNamesById,
+                  serviceNamesById,
+                );
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: _navigateToAdd,
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48.0),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: DropdownButton<String>(
+              value: _selectedStatus ?? 'All',
+              isExpanded: true,
+              onChanged: _onStatusChanged,
+              items: statusOptions
+                  .map((status) => DropdownMenuItem<String>(
+                        value: status,
+                        child: Text(status),
+                      ))
+                  .toList(),
+            ),
+          ),
+        ),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _filteredBookings.isEmpty
+              ? const Center(child: Text('Belum ada data booking'))
+              : ListView.builder(
+                  itemCount: _filteredBookings.length,
+                  itemBuilder: (context, index) {
+                    final booking = _filteredBookings[index];
+
+                    // Prepare maps for user and mechanic full names
+                    Map<String, String> userFullNamesById = {
+                      for (var c in customers)
+                        c.usersId ?? '': c.fullName ?? '-'
+                    };
+                    Map<String, String> mechanicFullNamesById = {
+                      for (var m in mechanics) m.id ?? '': m.fullName ?? '-'
+                    };
+
+                    final userFullName =
+                        userFullNamesById[booking.usersId] ?? '-';
+                    final mechanicFullName =
+                        mechanicFullNamesById[booking.mechanicsId] ?? '-';
+                    final bookingDate = booking.bookingsDate != null
+                        ? '${booking.bookingsDate!.toLocal().toIso8601String().split("T")[0]}'
+                        : '-';
+                    final bookingTime = booking.bookingsTime ?? '-';
+
+                    return ListTile(
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userFullName,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text('Mechanic : $mechanicFullName'),
+                        ],
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.calendar_today, size: 16),
+                              const SizedBox(width: 4),
+                              Text(bookingDate),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              const Icon(Icons.access_time, size: 16),
+                              const SizedBox(width: 4),
+                              Text(bookingTime),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              const Icon(Icons.info_outline, size: 16),
+                              const SizedBox(width: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: booking.status?.toLowerCase() == 'pending'
+                                      ? Colors.yellow.withOpacity(0.2)
+                                      : booking.status?.toLowerCase() == 'on progress'
+                                          ? Colors.orange.withOpacity(0.2)
+                                          : booking.status?.toLowerCase() == 'confirmed'
+                                              ? Colors.blue.withOpacity(0.2)
+                                              : booking.status?.toLowerCase() == 'done'
+                                                  ? Colors.green.withOpacity(0.2)
+                                                  : booking.status?.toLowerCase() == 'cancelled'
+                                                      ? Colors.red.withOpacity(0.2)
+                                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  booking.status ?? '-',
+                                  style: TextStyle(
+                                  color: booking.status?.toLowerCase() == 'pending'
+                                      ? Colors.yellow[800]
+                                      : booking.status?.toLowerCase() == 'on progress'
+                                          ? Colors.orange
+                                          : booking.status?.toLowerCase() == 'confirmed'
+                                              ? Colors.blue
+                                              : booking.status?.toLowerCase() == 'done'
+                                                  ? Colors.green
+                                                  : booking.status?.toLowerCase() == 'cancelled'
+                                                      ? Colors.red
+                                                      : Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => _navigateToEdit(booking),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () {
+                              if (booking.id != null) {
+                                _deleteBooking(booking.id!);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      onTap: () async {
+                        final services = await _bookingService
+                            .getServicesByUserId(booking.usersId);
+                        if (services != null) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => BookingDetailFormPage(
+                                booking: booking,
+                                services: services,
+                                profiles: customers
+                                    .map((c) => {
+                                          'users_id': c.usersId,
+                                          'full_name': c.fullName,
+                                        })
+                                    .toList(),
+                                mechanics: mechanics
+                                    .map((m) => {
+                                          'id': m.id,
+                                          'full_name': m.fullName,
+                                        })
+                                    .toList(),
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  },
+                ),
+    );
+  }
+}

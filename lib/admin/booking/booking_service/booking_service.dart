@@ -1,3 +1,4 @@
+import 'package:pitstop/admin/data_master/service/model/service_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:pitstop/admin/booking/model/booking_model.dart';
@@ -6,12 +7,34 @@ import 'package:pitstop/admin/booking/model/booking_service_model.dart';
 class BookingService {
   final SupabaseClient _client = Supabase.instance.client;
 
+  Future<String> generateBookingId() async {
+    try {
+      final response = await _client
+          .from('booking')
+          .select('id')
+          .like('id', 'B%')
+          .order('id', ascending: false)
+          .limit(1)
+          .single();
+
+      if (response == null || response['id'] == null) {
+        return 'B001';
+      }
+
+      final lastId = response['id'] as String;
+      final numberPart = int.tryParse(lastId.substring(1)) ?? 0;
+      final newNumber = numberPart + 1;
+      return 'B' + newNumber.toString().padLeft(3, '0');
+    } catch (e) {
+      print('Exception generating booking ID: $e');
+      return 'B001';
+    }
+  }
+
   Future<bool> addBooking(BookingModel booking, List<BookingServiceModel> bookingServices) async {
     try {
-      final uuid = Uuid();
-
       for (var bs in bookingServices) {
-        final bookingId = uuid.v4();
+        final bookingId = await generateBookingId();
 
         final response = await _client.from('booking').insert({
           'id': bookingId,
@@ -102,6 +125,52 @@ class BookingService {
     } catch (e) {
       print('Exception deleting booking: $e');
       return false;
+    }
+  }
+
+  Future<List<BookingModel>?> getBookingsByDateAndMechanic(DateTime date, String mechanicId) async {
+    try {
+      final dateStr = date.toIso8601String().split('T')[0];
+      final response = await _client
+          .from('booking')
+          .select()
+          .eq('bookings_date', dateStr)
+          .eq('mechanics_id', mechanicId)
+          .order('bookings_time', ascending: true);
+      if (response == null) {
+        return null;
+      }
+      return (response as List).map((e) => BookingModel.fromMap(e)).toList();
+    } catch (e) {
+      print('Exception getting bookings by date and mechanic: $e');
+      return null;
+    }
+  }
+
+  Future<List<ServiceModel>?> getServicesByUserId(String userId) async {
+    try {
+      final response = await _client
+          .from('booking')
+          .select('services_id')
+          .eq('users_id', userId);
+      if (response == null) {
+        return null;
+      }
+      final serviceIds = (response as List).map((e) => e['services_id'] as String).toSet().toList();
+      if (serviceIds.isEmpty) {
+        return [];
+      }
+      final servicesResponse = await _client
+          .from('services')
+          .select()
+          .filter('id', 'in', serviceIds);
+      if (servicesResponse == null) {
+        return null;
+      }
+      return (servicesResponse as List).map((e) => ServiceModel.fromMap(e)).toList();
+    } catch (e) {
+      print('Exception getting services by userId: $e');
+      return null;
     }
   }
 }

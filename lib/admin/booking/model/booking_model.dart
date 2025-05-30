@@ -2,6 +2,7 @@ class BookingModel {
   final String? id;
   final String? usersId;
   final String? mechanicsId;
+  final String? servicesId;
   final DateTime? bookingsDate;
   final String? bookingsTime; // time without time zone as String
   final String? status; // Pending, Confirmed, On Progress, Done, Cancelled
@@ -14,6 +15,7 @@ class BookingModel {
     this.id,
     this.usersId,
     this.mechanicsId,
+    this.servicesId,
     this.bookingsDate,
     this.bookingsTime,
     this.status,
@@ -28,6 +30,7 @@ class BookingModel {
       id: map['id'] as String?,
       usersId: map['users_id'] as String?,
       mechanicsId: map['mechanics_id'] as String?,
+      servicesId: map['services_id'] as String?,
       bookingsDate: map['bookings_date'] != null ? DateTime.parse(map['bookings_date']) : null,
       bookingsTime: map['bookings_time'] as String?,
       status: map['status'] as String?,
@@ -43,6 +46,7 @@ class BookingModel {
       'id': id,
       'users_id': usersId,
       'mechanics_id': mechanicsId,
+      'services_id': servicesId,
       'bookings_date': bookingsDate?.toIso8601String(),
       'bookings_time': bookingsTime,
       'status': status,
