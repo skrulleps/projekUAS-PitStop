@@ -120,6 +120,31 @@ extension BookingServiceExtension on BookingService {
     }
   }
 
+  Future<bool> updateStatusByUserIdDateTime(String userId, DateTime date, String time, String status) async {
+    try {
+      final SupabaseClient client = Supabase.instance.client;
+      final dateStr = date.toIso8601String().split('T')[0];
+      final response = await client
+          .from('booking')
+          .update({
+            'status': status,
+            'updated_at': DateTime.now().toIso8601String()
+          })
+          .eq('users_id', userId)
+          .eq('bookings_date', dateStr)
+          .eq('bookings_time', time)
+          .select();
+      if (response != null) {
+        return false;
+      }
+      // Jika tidak ada error, anggap berhasil
+      return true;
+    } catch (e) {
+      print('Exception updating status by userId, date, and time: $e');
+      return false;
+    }
+  }
+
   Future<bool> deleteByUserId(String userId) async {
     try {
       final SupabaseClient client = Supabase.instance.client;

@@ -109,7 +109,7 @@ class _BookingPageState extends State<BookingPage> {
 
   void _navigateToEdit(BookingModel booking) async {
     final result = await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => EditBookingFormPage(booking: booking)),
+      MaterialPageRoute(builder: (_) => EditBookingFormPage(booking: booking,)),
     );
     if (result == true) {
       _fetchAllData();

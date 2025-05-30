@@ -30,6 +30,7 @@ class _EditBookingFormPageState extends State<EditBookingFormPage> {
   String _status = 'Pending';
   String? _notes;
   List<ServiceModel> _allServices = [];
+  // Remove _selectedServices as services will be passed from widget
   List<ServiceModel> _selectedServices = [];
   double _totalPrice = 0.0;
 
@@ -42,10 +43,17 @@ class _EditBookingFormPageState extends State<EditBookingFormPage> {
   void initState() {
     super.initState();
     _isLoading = true;
+    // Load profiles and mechanics first
     _loadProfiles();
     _loadMechanics();
-    _loadServices();
-    _loadBookingData();
+    // Load services first, then booking data, then selected services
+    _loadServices().then((_) async {
+      _loadBookingData();
+      await _loadSelectedServices();
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
 
   Future<void> _loadProfiles() async {
@@ -89,22 +97,40 @@ class _EditBookingFormPageState extends State<EditBookingFormPage> {
     _status = booking.status ?? 'Pending';
     _notes = booking.notes;
     _totalPrice = booking.totalPrice ?? 0.0;
-    await _loadSelectedServices();
+    // Remove _loadSelectedServices call here to avoid duplicate calls
+    // await _loadSelectedServices();
     setState(() {
-      _isLoading = false;
+      // Do not set _isLoading false here, will be set after all loads complete
     });
   }
 
+  // Remove _loadSelectedServices method as services will be passed from widget
   Future<void> _loadSelectedServices() async {
-    if (_selectedUserId == null) {
-      setState(() {
-        _selectedServices = [];
-      });
+    if (widget.booking == null) {
+      _selectedServices = [];
       return;
     }
-final services = await _bookingService.getServicesByUserId(_selectedUserId ?? '');
+    final booking = widget.booking!;
+    final response = await _client.from('booking').select('services_id')
+      .eq('users_id', booking.usersId ?? '')
+      .eq('bookings_date', booking.bookingsDate?.toIso8601String() ?? '')
+      .eq('bookings_time', booking.bookingsTime ?? '')
+      .eq('mechanics_id', booking.mechanicsId ?? '')
+      .eq('status', booking.status ?? '');
+    if (response == null) {
+      _selectedServices = [];
+      return;
+    }
+    final serviceIds = <String>[];
+    for (var item in response) {
+      final serviceId = item['services_id'];
+      if (serviceId != null) {
+        serviceIds.add(serviceId as String);
+      }
+    }
+    final selected = _allServices.where((service) => serviceIds.contains(service.id)).toList();
     setState(() {
-      _selectedServices = services ?? [];
+      _selectedServices = selected;
     });
   }
 
@@ -123,8 +149,9 @@ final services = await _bookingService.getServicesByUserId(_selectedUserId ?? ''
     });
 
     bool success = false;
-    if (_selectedUserId != null) {
-      success = await _bookingService.updateStatusByUserId(_selectedUserId!, _status);
+    if (_selectedUserId != null && _selectedDate != null && _selectedTime != null) {
+      final timeStr = _selectedTime!.format(context);
+      success = await _bookingService.updateStatusByUserIdDateTime(_selectedUserId!, _selectedDate!, timeStr, _status);
     }
 
     setState(() {
@@ -150,65 +177,80 @@ final services = await _bookingService.getServicesByUserId(_selectedUserId ?? ''
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  children: [
-                    TextFormField(
-                      initialValue: _profiles.firstWhere((p) => p['users_id'] == _selectedUserId, orElse: () => {})['full_name'] ?? '-',
-                      decoration: const InputDecoration(labelText: 'User'),
-                      readOnly: true,
-                    ),
-                    TextFormField(
-                      initialValue: _mechanics.firstWhere((m) => m['id'] == _selectedMechanicId, orElse: () => {})['full_name'] ?? '-',
-                      decoration: const InputDecoration(labelText: 'Mekanik'),
-                      readOnly: true,
-                    ),
-                    TextFormField(
-                      initialValue: dateText,
-                      decoration: const InputDecoration(labelText: 'Tanggal Booking'),
-                      readOnly: true,
-                    ),
-                    TextFormField(
-                      initialValue: timeText,
-                      decoration: const InputDecoration(labelText: 'Waktu Booking'),
-                      readOnly: true,
-                    ),
-                    const SizedBox(height: 16),
-                    const Text('Jasa Servis'),
-                    ..._selectedServices.map((service) {
-                      return ListTile(
-                        title: Text(service.serviceName ?? '-'),
-                        subtitle: Text('Harga: Rp ${service.price ?? '-'}'),
-                      );
-                    }).toList(),
-                    const SizedBox(height: 16),
-                    Text('Total Harga: Rp $_totalPrice'),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _status,
-                      decoration: const InputDecoration(labelText: 'Status'),
-                      items: <String>['Pending', 'Confirmed', 'On Progress', 'Done', 'Cancelled']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
+          : RefreshIndicator(
+              onRefresh: () async {
+                setState(() {
+                  _isLoading = true;
+                });
+                await _loadProfiles();
+                await _loadMechanics();
+                await _loadServices();
+                _loadBookingData();
+                await _loadSelectedServices();
+                setState(() {
+                  _isLoading = false;
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
+                  child: ListView(
+                    children: [
+                      TextFormField(
+                        initialValue: _profiles.firstWhere((p) => p['users_id'] == _selectedUserId, orElse: () => {})['full_name'] ?? '-',
+                        decoration: const InputDecoration(labelText: 'User'),
+                        readOnly: true,
+                      ),
+                      TextFormField(
+                        initialValue: _mechanics.firstWhere((m) => m['id'] == _selectedMechanicId, orElse: () => {})['full_name'] ?? '-',
+                        decoration: const InputDecoration(labelText: 'Mekanik'),
+                        readOnly: true,
+                      ),
+                      TextFormField(
+                        initialValue: dateText,
+                        decoration: const InputDecoration(labelText: 'Tanggal Booking'),
+                        readOnly: true,
+                      ),
+                      TextFormField(
+                        initialValue: timeText,
+                        decoration: const InputDecoration(labelText: 'Waktu Booking'),
+                        readOnly: true,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text('Jasa Servis'),
+                      ..._selectedServices.map((service) {
+                        return ListTile(
+                          title: Text(service.serviceName ?? '-'),
+                          subtitle: Text('Harga: Rp ${service.price ?? '-'}'),
                         );
                       }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _status = newValue ?? _status;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: _saveBooking,
-                      child: const Text('Update'),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      Text('Total Harga: Rp $_totalPrice'),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: _status,
+                        decoration: const InputDecoration(labelText: 'Status'),
+                        items: <String>['Pending', 'Confirmed', 'On Progress', 'Done', 'Cancelled']
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _status = newValue ?? _status;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: _saveBooking,
+                        child: const Text('Update'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
