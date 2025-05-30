@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import 'package:pitstop/admin/booking/model/booking_model.dart';
 import 'package:pitstop/admin/booking/model/booking_service_model.dart';
 
+
 class BookingService {
   final SupabaseClient _client = Supabase.instance.client;
 
@@ -31,24 +32,29 @@ class BookingService {
     }
   }
 
-  Future<bool> addBooking(BookingModel booking, List<BookingServiceModel> bookingServices) async {
+  Future<bool> addBooking(
+      BookingModel booking, List<BookingServiceModel> bookingServices) async {
     try {
       for (var bs in bookingServices) {
         final bookingId = await generateBookingId();
 
-        final response = await _client.from('booking').insert({
-          'id': bookingId,
-          'users_id': booking.usersId ?? '',
-          'mechanics_id': booking.mechanicsId ?? '',
-          'bookings_date': booking.bookingsDate?.toIso8601String() ?? '',
-          'bookings_time': booking.bookingsTime ?? '',
-          'status': booking.status ?? '',
-          'notes': booking.notes ?? '',
-          'total_price': booking.totalPrice ?? 0,
-          'services_id': bs.serviceId ?? '',
-          'created_at': DateTime.now().toIso8601String(),
-          'updated_at': booking.updatedAt?.toIso8601String() ?? '',
-        }).select('id').single();
+        final response = await _client
+            .from('booking')
+            .insert({
+              'id': bookingId,
+              'users_id': booking.usersId ?? '',
+              'mechanics_id': booking.mechanicsId ?? '',
+              'bookings_date': booking.bookingsDate?.toIso8601String() ?? '',
+              'bookings_time': booking.bookingsTime ?? '',
+              'status': booking.status ?? '',
+              'notes': booking.notes ?? '',
+              'total_price': booking.totalPrice ?? 0,
+              'services_id': bs.serviceId ?? '',
+              'created_at': DateTime.now().toIso8601String(),
+              'updated_at': booking.updatedAt?.toIso8601String() ?? '',
+            })
+            .select('id')
+            .single();
 
         if (response == null || response['id'] == null) {
           return false;
@@ -62,7 +68,8 @@ class BookingService {
     }
   }
 
-  Future<bool> updateBooking(BookingModel booking, List<BookingServiceModel> bookingServices) async {
+  Future<bool> updateBooking(
+      BookingModel booking, List<BookingServiceModel> bookingServices) async {
     try {
       if (booking.id == null) {
         print('DEBUG: booking.id is null');
@@ -77,12 +84,14 @@ class BookingService {
       final bs = bookingServices.first;
 
       print('DEBUG: booking.id: ${booking.id}');
-      print('DEBUG: update data: users_id=${booking.usersId}, mechanics_id=${booking.mechanicsId}, bookings_date=${booking.bookingsDate}, bookings_time=${booking.bookingsTime}, status=${booking.status}, notes=${booking.notes}, total_price=${booking.totalPrice}, services_id=${bs.serviceId}, updated_at=${booking.updatedAt}');
+      print(
+          'DEBUG: update data: users_id=${booking.usersId}, mechanics_id=${booking.mechanicsId}, bookings_date=${booking.bookingsDate}, bookings_time=${booking.bookingsTime}, status=${booking.status}, notes=${booking.notes}, total_price=${booking.totalPrice}, services_id=${bs.serviceId}, updated_at=${booking.updatedAt}');
 
       final updateResponse = await _client.from('booking').update({
         'users_id': booking.usersId as Object? ?? '',
         'mechanics_id': booking.mechanicsId as Object? ?? '',
-        'bookings_date': booking.bookingsDate?.toIso8601String() as Object? ?? '',
+        'bookings_date':
+            booking.bookingsDate?.toIso8601String() as Object? ?? '',
         'bookings_time': booking.bookingsTime as Object? ?? '',
         'status': booking.status as Object? ?? '',
         'notes': booking.notes as Object? ?? '',
@@ -93,7 +102,8 @@ class BookingService {
 
       print('DEBUG: updateResponse: $updateResponse');
 
-      if (updateResponse == null || (updateResponse is List && updateResponse.isEmpty)) {
+      if (updateResponse == null ||
+          (updateResponse is List && updateResponse.isEmpty)) {
         return false;
       }
 
@@ -106,7 +116,10 @@ class BookingService {
 
   Future<List<BookingModel>?> getBookings() async {
     try {
-      final response = await _client.from('booking').select().order('created_at', ascending: false);
+      final response = await _client
+          .from('booking')
+          .select()
+          .order('created_at', ascending: false);
       if (response == null) {
         return null;
       }
@@ -117,14 +130,17 @@ class BookingService {
     }
   }
 
-  Future<bool> deleteBooking(String id) async {
+  Future<List<ServiceModel>?> getAllServices() async {
     try {
-      await _client.from('booking').delete().eq('id', id);
-      // Anggap berhasil jika tidak ada exception
-      return true;
+      final response =
+          await _client.from('services').select().order('service_name');
+      if (response == null) {
+        return null;
+      }
+      return (response as List).map((e) => ServiceModel.fromMap(e)).toList();
     } catch (e) {
-      print('Exception deleting booking: $e');
-      return false;
+      print('Exception getting all services: $e');
+      return null;
     }
   }
 
@@ -147,30 +163,32 @@ class BookingService {
     }
   }
 
-  Future<List<ServiceModel>?> getServicesByUserId(String userId) async {
+  Future<bool> deleteBooking(String id) async {
     try {
-      final response = await _client
-          .from('booking')
-          .select('services_id')
-          .eq('users_id', userId);
-      if (response == null) {
-        return null;
-      }
-      final serviceIds = (response as List).map((e) => e['services_id'] as String).toSet().toList();
-      if (serviceIds.isEmpty) {
-        return [];
-      }
-      final servicesResponse = await _client
-          .from('services')
-          .select()
-          .filter('id', 'in', serviceIds);
-      if (servicesResponse == null) {
-        return null;
-      }
-      return (servicesResponse as List).map((e) => ServiceModel.fromMap(e)).toList();
+      await _client.from('booking').delete().eq('id', id);
+      // Assume success if no exception
+      return true;
     } catch (e) {
-      print('Exception getting services by userId: $e');
-      return null;
+      print('Exception deleting booking: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteByDateAndTime(DateTime date, String time) async {
+    try {
+      final dateStr = date.toIso8601String().split('T')[0];
+      await _client
+          .from('booking')
+          .delete()
+          .eq('bookings_date', dateStr)
+          .eq('bookings_time', time);
+      // Assume success if no exception
+      return true;
+    } catch (e) {
+      print('Exception deleting bookings by date and time: $e');
+      return false;
     }
   }
 }
+
+

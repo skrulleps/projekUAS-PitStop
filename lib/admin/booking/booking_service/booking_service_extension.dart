@@ -36,6 +36,42 @@ extension BookingServiceExtension on BookingService {
     }
   }
 
+  Future<List<ServiceModel>?> getServicesByUserIdAndDateTime(String? userId, DateTime? date, String? time) async {
+    if (userId == null || userId.isEmpty || date == null || time == null || time.isEmpty) {
+      return null;
+    }
+    try {
+      final SupabaseClient client = Supabase.instance.client;
+      final dateStr = date.toIso8601String().split('T')[0];
+      // Query booking join services to get service details filtered by userId, date, and time
+      final response = await client
+          .from('booking')
+          .select('services_id, services(service_name, price)')
+          .eq('users_id', userId)
+          .eq('bookings_date', dateStr)
+          .eq('bookings_time', time);
+      if (response == null) {
+        return null;
+      }
+      List<ServiceModel> services = [];
+      for (var item in response) {
+        final serviceId = item['services_id'];
+        final serviceData = item['services'];
+        if (serviceId != null && serviceData != null) {
+          services.add(ServiceModel(
+            id: serviceId,
+            serviceName: serviceData['service_name'] ?? '',
+            price: serviceData['price']?.toString() ?? '',
+          ));
+        }
+      }
+      return services;
+    } catch (e) {
+      print('Exception getting services by userId and date/time: $e');
+      return null;
+    }
+  }
+
   Future<double?> getTotalPriceByUserId(String? userId) async {
     if (userId == null || userId.isEmpty) {
       return null;

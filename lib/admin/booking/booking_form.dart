@@ -189,8 +189,8 @@ class _BookingFormPageState extends State<BookingFormPage> {
   // New method to load bookings for selected date and mechanic
   Future<void> _loadBookingsForSelectedDateAndMechanic() async {
     if (_selectedDate != null && _selectedMechanicId != null) {
-      final bookings = await _bookingService.getBookingsByDateAndMechanic(_selectedDate!, _selectedMechanicId!);
-      setState(() {
+      
+      setState(() async {final bookings = await _bookingService.getBookingsByDateAndMechanic(_selectedDate!, _selectedMechanicId!);
         _bookingsForSelectedDateAndMechanic = bookings ?? [];
       });
     } else {

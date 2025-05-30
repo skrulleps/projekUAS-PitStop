@@ -58,17 +58,17 @@ class _BookingPageState extends State<BookingPage> {
     final servicesData = await _serviceService.getServices();
 
     // Group bookings by users_id to show only one ListTile per users_id
-    final Map<String, BookingModel> uniqueBookings = {};
+    final Map<String, BookingModel> groupedBookings = {};
     if (bookings != null) {
       for (var booking in bookings) {
-        final key = '${booking.usersId}_${booking.bookingsDate?.toIso8601String().split("T")[0]}';
-        if (!uniqueBookings.containsKey(key)) {
-          uniqueBookings[key] = booking;
+        final key = '${booking.bookingsDate?.toIso8601String().split("T")[0]}_${booking.bookingsTime}';
+        if (!groupedBookings.containsKey(key)) {
+          groupedBookings[key] = booking;
         }
       }
     }
     setState(() {
-      _bookings = uniqueBookings.values.toList();
+      _bookings = groupedBookings.values.toList();
       customers = customersData ?? [];
       mechanics = mechanicsData ?? [];
       services = servicesData ?? [];
@@ -153,17 +153,51 @@ class _BookingPageState extends State<BookingPage> {
         );
         return;
       }
-      // Hapus booking berdasarkan users_id
-      final success = await _bookingService.deleteByUserId(booking.usersId!);
+      // Hapus booking berdasarkan id
+      final success = await _bookingService.deleteBooking(booking.id!);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Semua booking dengan user ini berhasil dihapus')),
+              content: Text('Booking berhasil dihapus')),
         );
         _fetchAllData();
       } else {
-        debugPrint('Berhasil menghapus booking');
+        debugPrint('Gagal menghapus booking');
         _fetchAllData();
+      }
+    }
+  }
+
+  Future<void> _deleteBookingsByDateTime(DateTime date, String time) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi'),
+        content: const Text('Apakah Anda yakin ingin menghapus semua booking dengan tanggal dan waktu yang sama?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Hapus Semua'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final success = await _bookingService.deleteByDateAndTime(date, time);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Semua booking dengan tanggal dan waktu yang sama berhasil dihapus')),
+        );
+        _fetchAllData();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal menghapus booking')),
+        );
       }
     }
   }
@@ -198,15 +232,17 @@ class _BookingPageState extends State<BookingPage> {
                   for (var m in mechanics) m.id ?? '': m.fullName ?? '-'
                 };
 
-                // Prepare map for userId to list of service models
+                // Prepare map for userId to list of service models filtered by date and time
                 Map<String, List<ServiceModel>> serviceListByUserId = {};
                 for (var booking in _filteredBookings) {
                   final userId = booking.usersId!;
-                  if (!serviceListByUserId.containsKey(userId)) {
-                    final servicesList =
-                        await _bookingService.getServicesByUserId(userId);
+                  final dateStr = booking.bookingsDate != null ? booking.bookingsDate!.toIso8601String().split('T')[0] : '';
+                  final timeStr = booking.bookingsTime ?? '';
+                  final compositeKey = '${userId}_$dateStr\_$timeStr';
+                  if (!serviceListByUserId.containsKey(compositeKey)) {
+                    final servicesList = await _bookingService.getServicesByUserIdAndDateTime(userId, booking.bookingsDate, booking.bookingsTime);
                     if (servicesList != null) {
-                      serviceListByUserId[userId] = servicesList;
+                      serviceListByUserId[compositeKey] = servicesList;
                     }
                   }
                 }
@@ -367,38 +403,38 @@ class _BookingPageState extends State<BookingPage> {
                           IconButton(
                             icon: const Icon(Icons.delete),
                             onPressed: () {
-                              if (booking.id != null) {
-                                _deleteBooking(booking.id!);
+                              if (booking.bookingsDate != null && booking.bookingsTime != null) {
+                                _deleteBookingsByDateTime(booking.bookingsDate!, booking.bookingsTime!);
                               }
                             },
                           ),
                         ],
                       ),
                       onTap: () async {
-                        final services = await _bookingService
-                            .getServicesByUserId(booking.usersId ?? '');
-                        if (services != null) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => BookingDetailFormPage(
-                                booking: booking,
-                                services: services,
-                                profiles: customers
-                                    .map((c) => {
-                                          'users_id': c.usersId,
-                                          'full_name': c.fullName,
-                                        })
-                                    .toList(),
-                                mechanics: mechanics
-                                    .map((m) => {
-                                          'id': m.id,
-                                          'full_name': m.fullName,
-                                        })
-                                    .toList(),
-                              ),
+                      final services = await _bookingService
+                          .getServicesByUserIdAndDateTime(booking.usersId ?? '', booking.bookingsDate, booking.bookingsTime);
+                      if (services != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => BookingDetailFormPage(
+                              booking: booking,
+                              services: services,
+                              profiles: customers
+                                  .map((c) => {
+                                        'users_id': c.usersId,
+                                        'full_name': c.fullName,
+                                      })
+                                  .toList(),
+                              mechanics: mechanics
+                                  .map((m) => {
+                                        'id': m.id,
+                                        'full_name': m.fullName,
+                                      })
+                                  .toList(),
                             ),
-                          );
-                        }
+                          ),
+                        );
+                      }
                       },
                     );
                   },

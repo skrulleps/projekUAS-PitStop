@@ -47,16 +47,19 @@ class BookingPrintService {
                     final booking = bookingsToPrint[index];
                     final userFullName = userFullNamesById[booking.usersId] ?? '-';
                     final mechanicFullName = mechanicFullNamesById[booking.mechanicsId] ?? '-';
-                    final services = serviceListByUserId[booking.usersId] ?? [];
+                    final dateStr = booking.bookingsDate != null ? booking.bookingsDate!.toIso8601String().split('T')[0] : '';
+                    final timeStr = booking.bookingsTime ?? '';
+                    final compositeKey = '${booking.usersId}_$dateStr\_$timeStr';
+                    final services = serviceListByUserId[compositeKey] ?? [];
                     final serviceNames = services.asMap().entries.map((entry) {
                       int idx = entry.key + 1;
                       String name = entry.value.serviceName ?? '-';
                       return '$idx. $name';
                     }).join('\n');
-                    final dateStr = booking.bookingsDate != null
-                        ? '${booking.bookingsDate!.toLocal().toIso8601String().split("T")[0]}'
-                        : '-';
-                    final timeStr = booking.bookingsTime ?? '-';
+                    // final dateStr = booking.bookingsDate != null
+                    //     ? '${booking.bookingsDate!.toLocal().toIso8601String().split("T")[0]}'
+                    //     : '-';
+                    // final timeStr = booking.bookingsTime ?? '-';
                     final status = booking.status ?? '-';
                     final notes = booking.notes ?? '-';
                     final totalPrice = (booking.totalPrice ?? 0).toStringAsFixed(2);
