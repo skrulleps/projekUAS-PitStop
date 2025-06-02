@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../admin_sidebar.dart';
 import 'user_account_model.dart';
+import 'user_account_detail_page.dart';
+import 'tambah_akun_page.dart';
 
 class DataAkunPage extends StatefulWidget {
   const DataAkunPage({Key? key}) : super(key: key);
@@ -21,7 +23,8 @@ class _DataAkunPageState extends State<DataAkunPage> {
   }
 
   Future<List<UserAccount>> fetchUsers() async {
-    final response = await supabase.from('users').select('id, email, role');
+    final response =
+        await supabase.from('users').select('id, email, username, role');
     if (response == null) {
       throw Exception('Failed to load users: response is null');
     }
@@ -36,11 +39,15 @@ class _DataAkunPageState extends State<DataAkunPage> {
     await _usersFuture;
   }
 
-  void _addUser() {
-    // TODO: Navigate to user add form
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Navigasi ke tambah akun')),
+  void _addUser() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddUserAccountPage()),
     );
+
+    if (result == true) {
+      _refreshData(); // auto fetch ulang setelah kembali dari add user
+    }
   }
 
   @override
@@ -79,17 +86,37 @@ class _DataAkunPageState extends State<DataAkunPage> {
                 itemBuilder: (context, index) {
                   final user = users[index];
                   return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: ListTile(
                       leading: const Icon(Icons.person, color: Colors.black54),
-                      title: Text(user.email, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(user.username,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                          Text(user.email),
+                        ],
+                      ),
                       subtitle: Text('Role: ${user.role}'),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        // TODO: Navigate to user detail/edit
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                UserAccountDetailPage(user: user),
+                          ),
+                        );
+
+                        if (result == true) {
+                          // Fetch ulang data setelah user dihapus
+                          _refreshData();
+                        }
                       },
                     ),
                   );
