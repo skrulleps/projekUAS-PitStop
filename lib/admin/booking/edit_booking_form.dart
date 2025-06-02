@@ -30,7 +30,6 @@ class _EditBookingFormPageState extends State<EditBookingFormPage> {
   String _status = 'Pending';
   String? _notes;
   List<ServiceModel> _allServices = [];
-  // Remove _selectedServices as services will be passed from widget
   List<ServiceModel> _selectedServices = [];
   double _totalPrice = 0.0;
 
@@ -43,10 +42,8 @@ class _EditBookingFormPageState extends State<EditBookingFormPage> {
   void initState() {
     super.initState();
     _isLoading = true;
-    // Load profiles and mechanics first
     _loadProfiles();
     _loadMechanics();
-    // Load services first, then booking data, then selected services
     _loadServices().then((_) async {
       _loadBookingData();
       await _loadSelectedServices();
@@ -83,7 +80,7 @@ class _EditBookingFormPageState extends State<EditBookingFormPage> {
     });
   }
 
-  void _loadBookingData() async {
+  void _loadBookingData() {
     final booking = widget.booking;
     _selectedUserId = booking.usersId;
     _selectedMechanicId = booking.mechanicsId;
@@ -97,26 +94,20 @@ class _EditBookingFormPageState extends State<EditBookingFormPage> {
     _status = booking.status ?? 'Pending';
     _notes = booking.notes;
     _totalPrice = booking.totalPrice ?? 0.0;
-    // Remove _loadSelectedServices call here to avoid duplicate calls
-    // await _loadSelectedServices();
-    setState(() {
-      // Do not set _isLoading false here, will be set after all loads complete
-    });
   }
 
-  // Remove _loadSelectedServices method as services will be passed from widget
   Future<void> _loadSelectedServices() async {
     if (widget.booking == null) {
       _selectedServices = [];
       return;
     }
-    final booking = widget.booking!;
+    final booking = widget.booking;
     final response = await _client.from('booking').select('services_id')
-      .eq('users_id', booking.usersId ?? '')
-      .eq('bookings_date', booking.bookingsDate?.toIso8601String() ?? '')
-      .eq('bookings_time', booking.bookingsTime ?? '')
-      .eq('mechanics_id', booking.mechanicsId ?? '')
-      .eq('status', booking.status ?? '');
+        .eq('users_id', booking.usersId ?? '')
+        .eq('bookings_date', booking.bookingsDate?.toIso8601String() ?? '')
+        .eq('bookings_time', booking.bookingsTime ?? '')
+        .eq('mechanics_id', booking.mechanicsId ?? '')
+        .eq('status', booking.status ?? '');
     if (response == null) {
       _selectedServices = [];
       return;
@@ -160,9 +151,9 @@ class _EditBookingFormPageState extends State<EditBookingFormPage> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Booking berhasil diperbarui')));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Berhasil memperbarui booking')));
       Navigator.of(context).pop(true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal memperbarui booking')));
     }
   }
 
@@ -172,12 +163,16 @@ class _EditBookingFormPageState extends State<EditBookingFormPage> {
     final timeText = _selectedTime != null ? _selectedTime!.format(context) : 'Pilih waktu';
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Edit Booking'),
+        backgroundColor: Colors.black,
+        title: const Text('Edit Booking', style: TextStyle(color: Colors.amber)),
+        iconTheme: const IconThemeData(color: Colors.amber),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Colors.black))
           : RefreshIndicator(
+              color: Colors.amber,
               onRefresh: () async {
                 setState(() {
                   _isLoading = true;
@@ -199,55 +194,144 @@ class _EditBookingFormPageState extends State<EditBookingFormPage> {
                     children: [
                       TextFormField(
                         initialValue: _profiles.firstWhere((p) => p['users_id'] == _selectedUserId, orElse: () => {})['full_name'] ?? '-',
-                        decoration: const InputDecoration(labelText: 'User'),
+                        decoration: const InputDecoration(
+                          labelText: 'User',
+                          labelStyle: TextStyle(color: Colors.black87),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.amber),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                          ),
+                        ),
                         readOnly: true,
+                        style: const TextStyle(color: Colors.black87),
                       ),
+                      const SizedBox(height: 12),
                       TextFormField(
                         initialValue: _mechanics.firstWhere((m) => m['id'] == _selectedMechanicId, orElse: () => {})['full_name'] ?? '-',
-                        decoration: const InputDecoration(labelText: 'Mekanik'),
+                        decoration: const InputDecoration(
+                          labelText: 'Mekanik',
+                          labelStyle: TextStyle(color: Colors.black87),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.amber),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                          ),
+                        ),
                         readOnly: true,
+                        style: const TextStyle(color: Colors.black87),
                       ),
+                      const SizedBox(height: 12),
                       TextFormField(
                         initialValue: dateText,
-                        decoration: const InputDecoration(labelText: 'Tanggal Booking'),
+                        decoration: const InputDecoration(
+                          labelText: 'Tanggal Booking',
+                          labelStyle: TextStyle(color: Colors.black87),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.amber),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                          ),
+                        ),
                         readOnly: true,
+                        style: const TextStyle(color: Colors.black87),
                       ),
+                      const SizedBox(height: 12),
                       TextFormField(
                         initialValue: timeText,
-                        decoration: const InputDecoration(labelText: 'Waktu Booking'),
+                        decoration: const InputDecoration(
+                          labelText: 'Waktu Booking',
+                          labelStyle: TextStyle(color: Colors.black87),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.amber),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                          ),
+                        ),
                         readOnly: true,
+                        style: const TextStyle(color: Colors.black87),
                       ),
-                      const SizedBox(height: 16),
-                      const Text('Jasa Servis'),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Jasa Servis',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 8),
                       ..._selectedServices.map((service) {
                         return ListTile(
-                          title: Text(service.serviceName ?? '-'),
-                          subtitle: Text('Harga: Rp ${service.price ?? '-'}'),
+                          tileColor: Colors.amber.shade50,
+                          title: Text(service.serviceName ?? '-', style: const TextStyle(color: Colors.black87)),
+                          subtitle: Text('Harga: Rp ${service.price ?? '-'}', style: const TextStyle(color: Colors.black54)),
                         );
                       }).toList(),
-                      const SizedBox(height: 16),
-                      Text('Total Harga: Rp $_totalPrice'),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Total Harga: Rp $_totalPrice',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 24),
                       DropdownButtonFormField<String>(
                         value: _status,
-                        decoration: const InputDecoration(labelText: 'Status'),
+                        decoration: const InputDecoration(
+                          labelText: 'Status',
+                          labelStyle: TextStyle(color: Colors.black87),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.amber),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                          ),
+                        ),
                         items: <String>['Pending', 'Confirmed', 'On Progress', 'Done', 'Cancelled']
                             .map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
-                            child: Text(value),
+                            child: Text(value, style: const TextStyle(color: Colors.black87)),
                           );
                         }).toList(),
-                        onChanged: (String? newValue) {
+                        onChanged: (value) {
                           setState(() {
-                            _status = newValue ?? _status;
+                            _status = value ?? _status;
                           });
                         },
                       ),
                       const SizedBox(height: 24),
+                      TextFormField(
+                        initialValue: _notes,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          labelText: 'Catatan',
+                          labelStyle: const TextStyle(color: Colors.black87),
+                          enabledBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.amber),
+                          ),
+                          focusedBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          _notes = value;
+                        },
+                      ),
+                      const SizedBox(height: 32),
                       ElevatedButton(
-                        onPressed: _saveBooking,
-                        child: const Text('Update'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.amber,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: _isLoading ? null : _saveBooking,
+                        child: _isLoading
+                            ? const CircularProgressIndicator(color: Colors.amber)
+                            : const Text('Simpan Perubahan'),
                       ),
                     ],
                   ),

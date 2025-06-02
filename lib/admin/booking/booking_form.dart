@@ -49,7 +49,8 @@ class _BookingFormPageState extends State<BookingFormPage> {
   }
 
   Future<void> _loadProfiles() async {
-    final response = await _client.from('profiles').select('id, full_name, users_id');
+    final response =
+        await _client.from('profiles').select('id, full_name, users_id');
     if (response == null) {
       setState(() {
         _profiles = [];
@@ -70,7 +71,10 @@ class _BookingFormPageState extends State<BookingFormPage> {
   }
 
   Future<void> _loadMechanics() async {
-    final response = await _client.from('mechanics').select('id, full_name, spesialisasi, status').eq('status', 'Active');
+    final response = await _client
+        .from('mechanics')
+        .select('id, full_name, spesialisasi, status')
+        .eq('status', 'Active');
     print('DEBUG: mechanics response: $response');
     setState(() {
       _mechanics = List<Map<String, dynamic>>.from(response ?? []);
@@ -85,7 +89,8 @@ class _BookingFormPageState extends State<BookingFormPage> {
     if (booking.bookingsTime != null) {
       final parts = booking.bookingsTime!.split(':');
       if (parts.length >= 2) {
-        _selectedTime = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+        _selectedTime =
+            TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
       }
     }
     _status = booking.status ?? 'Pending';
@@ -100,12 +105,14 @@ class _BookingFormPageState extends State<BookingFormPage> {
       return;
     }
     final booking = widget.booking!;
-    final response = await _client.from('booking').select('services_id')
-      .eq('users_id', booking.usersId ?? '')
-      .eq('bookings_date', booking.bookingsDate?.toIso8601String() ?? '')
-      .eq('bookings_time', booking.bookingsTime ?? '')
-      .eq('mechanics_id', booking.mechanicsId ?? '')
-      .eq('status', booking.status ?? '');
+    final response = await _client
+        .from('booking')
+        .select('services_id')
+        .eq('users_id', booking.usersId ?? '')
+        .eq('bookings_date', booking.bookingsDate?.toIso8601String() ?? '')
+        .eq('bookings_time', booking.bookingsTime ?? '')
+        .eq('mechanics_id', booking.mechanicsId ?? '')
+        .eq('status', booking.status ?? '');
     if (response == null) {
       _selectedServices = [];
       return;
@@ -117,7 +124,9 @@ class _BookingFormPageState extends State<BookingFormPage> {
         serviceIds.add(serviceId as String);
       }
     }
-    final selected = _allServices.where((service) => serviceIds.contains(service.id)).toList();
+    final selected = _allServices
+        .where((service) => serviceIds.contains(service.id))
+        .toList();
     setState(() {
       _selectedServices = selected;
     });
@@ -189,8 +198,9 @@ class _BookingFormPageState extends State<BookingFormPage> {
   // New method to load bookings for selected date and mechanic
   Future<void> _loadBookingsForSelectedDateAndMechanic() async {
     if (_selectedDate != null && _selectedMechanicId != null) {
-      
-      setState(() async {final bookings = await _bookingService.getBookingsByDateAndMechanic(_selectedDate!, _selectedMechanicId!);
+      setState(() async {
+        final bookings = await _bookingService.getBookingsByDateAndMechanic(
+            _selectedDate!, _selectedMechanicId!);
         _bookingsForSelectedDateAndMechanic = bookings ?? [];
       });
     } else {
@@ -222,12 +232,17 @@ class _BookingFormPageState extends State<BookingFormPage> {
 
   Future<void> _saveBooking() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedUserId == null || _selectedMechanicId == null || _selectedDate == null || _selectedTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lengkapi semua data')));
+    if (_selectedUserId == null ||
+        _selectedMechanicId == null ||
+        _selectedDate == null ||
+        _selectedTime == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Lengkapi semua data')));
       return;
     }
     if (_selectedServices.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pilih minimal satu jasa servis')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Pilih minimal satu jasa servis')));
       return;
     }
 
@@ -240,7 +255,8 @@ class _BookingFormPageState extends State<BookingFormPage> {
       usersId: _selectedUserId,
       mechanicsId: _selectedMechanicId,
       bookingsDate: _selectedDate,
-      bookingsTime: '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}',
+      bookingsTime:
+          '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}',
       status: _status,
       notes: _notes,
       totalPrice: _totalPrice,
@@ -258,10 +274,12 @@ class _BookingFormPageState extends State<BookingFormPage> {
 
     bool success;
     if (widget.booking == null) {
-      print('DEBUG: Adding booking with data: $booking and services: $bookingServices');
+      print(
+          'DEBUG: Adding booking with data: $booking and services: $bookingServices');
       success = await _bookingService.addBooking(booking, bookingServices);
     } else {
-      print('DEBUG: Updating booking with data: $booking and services: $bookingServices');
+      print(
+          'DEBUG: Updating booking with data: $booking and services: $bookingServices');
       success = await _bookingService.updateBooking(booking, bookingServices);
     }
 
@@ -270,21 +288,31 @@ class _BookingFormPageState extends State<BookingFormPage> {
     });
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Booking berhasil disimpan')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Booking berhasil disimpan')));
       Navigator.of(context).pop(true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal menyimpan booking')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal menyimpan booking')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final dateText = _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : 'Pilih tanggal';
-    final timeText = _selectedTime != null ? _selectedTime!.format(context) : 'Pilih waktu';
+    final dateText = _selectedDate != null
+        ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
+        : 'Pilih tanggal';
+    final timeText =
+        _selectedTime != null ? _selectedTime!.format(context) : 'Pilih waktu';
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(widget.booking == null ? 'Tambah Booking' : 'Edit Booking'),
+        backgroundColor: Colors.amber[700],
+        foregroundColor: Colors.black,
+        centerTitle: true,
+        elevation: 2,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -294,45 +322,50 @@ class _BookingFormPageState extends State<BookingFormPage> {
                 key: _formKey,
                 child: ListView(
                   children: [
+                    // User Dropdown
                     DropdownButtonFormField<String>(
                       value: _selectedUserId,
                       decoration: const InputDecoration(labelText: 'User'),
                       items: _profiles.map((profile) {
-                        final userId = profile['users_id'];
                         return DropdownMenuItem<String>(
-                          value: userId != null ? userId as String : null,
+                          value: profile['users_id'] as String?,
                           child: Text(profile['full_name'] ?? '-'),
                         );
                       }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedUserId = value;
-                        });
-                      },
-                      validator: (value) => value == null || value.isEmpty ? 'User harus dipilih' : null,
+                      onChanged: (value) =>
+                          setState(() => _selectedUserId = value),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'User harus dipilih'
+                          : null,
                     ),
+
+                    const SizedBox(height: 16),
+
+                    // Mechanic Dropdown
                     DropdownButtonFormField<String>(
                       value: _selectedMechanicId,
                       decoration: const InputDecoration(labelText: 'Mekanik'),
                       isExpanded: true,
                       items: _mechanics.map((mechanic) {
-                        final mechanicId = mechanic['id'];
                         return DropdownMenuItem<String>(
-                          value: mechanicId != null ? mechanicId as String : null,
-                          child: Text('${mechanic['full_name'] ?? '-'} - ${mechanic['spesialisasi'] ?? '-'}'),
+                          value: mechanic['id'] as String?,
+                          child: Text(
+                              '${mechanic['full_name']} - ${mechanic['spesialisasi']}'),
                         );
                       }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedMechanicId = value;
-                        });
-                      },
-                      validator: (value) => value == null || value.isEmpty ? 'Mekanik harus dipilih' : null,
+                      onChanged: (value) =>
+                          setState(() => _selectedMechanicId = value),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Mekanik harus dipilih'
+                          : null,
                     ),
-                    const SizedBox(height: 16),
-                    // Replace date selection ListTile with horizontal 7-day picker
-                    const Text('Tanggal Booking'),
+
+                    const SizedBox(height: 24),
+
+                    const Text('Tanggal Booking',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
+
                     SizedBox(
                       height: 60,
                       child: ListView.builder(
@@ -344,50 +377,56 @@ class _BookingFormPageState extends State<BookingFormPage> {
                               date.year == _selectedDate!.year &&
                               date.month == _selectedDate!.month &&
                               date.day == _selectedDate!.day;
-                          final dayName = DateFormat.E().format(date); // e.g. Mon, Tue
-                          final dayNumber = date.day;
                           final isFriday = date.weekday == DateTime.friday;
                           return GestureDetector(
-                            onTap: isFriday ? null : () async {
-                              _onDateSelected(date);
-                              await _loadBookingsForSelectedDateAndMechanic();
-                            },
+                            onTap: isFriday
+                                ? null
+                                : () async {
+                                    _onDateSelected(date);
+                                    await _loadBookingsForSelectedDateAndMechanic();
+                                  },
                             child: Container(
                               width: 60,
                               margin: const EdgeInsets.symmetric(horizontal: 4),
                               decoration: BoxDecoration(
                                 color: isFriday
-                                    ? Colors.grey[400]
+                                    ? Colors.grey[300]
                                     : isSelected
-                                        ? Colors.blue
-                                        : Colors.grey[200],
+                                        ? Colors.amber[700]
+                                        : Colors.grey[100],
                                 borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? Colors.black
+                                      : Colors.grey[400]!,
+                                  width: 1,
+                                ),
                               ),
                               alignment: Alignment.center,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    dayName,
+                                    DateFormat.E().format(date),
                                     style: TextStyle(
                                       color: isFriday
-                                          ? Colors.grey[700]
+                                          ? Colors.grey
                                           : isSelected
-                                              ? Colors.white
-                                              : Colors.black,
+                                              ? Colors.black
+                                              : Colors.black87,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Text(
-                                    dayNumber.toString(),
+                                    '${date.day}',
                                     style: TextStyle(
-                                      color: isFriday
-                                          ? Colors.grey[700]
-                                          : isSelected
-                                              ? Colors.white
-                                              : Colors.black,
-                                      fontWeight: FontWeight.bold,
                                       fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: isFriday
+                                          ? Colors.grey
+                                          : isSelected
+                                              ? Colors.black
+                                              : Colors.black87,
                                     ),
                                   ),
                                 ],
@@ -397,87 +436,117 @@ class _BookingFormPageState extends State<BookingFormPage> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    const Text('Waktu Booking'),
+
+                    const SizedBox(height: 24),
+
+                    const Text('Waktu Booking',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
+
                     Wrap(
                       spacing: 8,
+                      runSpacing: 8,
                       children: _generateTimeSlots().map((slot) {
-                        final isBooked = _isTimeSlotBooked(slot, _bookingsForSelectedDateAndMechanic);
+                        final isBooked = _isTimeSlotBooked(
+                            slot, _bookingsForSelectedDateAndMechanic);
                         final isSelected = _selectedTime != null &&
                             _selectedTime!.hour == slot.hour &&
                             _selectedTime!.minute == slot.minute;
                         return ChoiceChip(
-                          label: Text('${slot.hour.toString().padLeft(2, '0')}:00'),
+                          label: Text(
+                              '${slot.hour.toString().padLeft(2, '0')}:00'),
                           selected: isSelected,
                           onSelected: isBooked
                               ? null
                               : (selected) {
-                                  if (selected) {
-                                    setState(() {
-                                      _selectedTime = slot;
-                                    });
-                                  }
+                                  if (selected)
+                                    setState(() => _selectedTime = slot);
                                 },
+                          selectedColor: Colors.amber[700],
                           disabledColor: Colors.grey[300],
-                          selectedColor: Colors.blue,
+                          backgroundColor: Colors.grey[100],
                           labelStyle: TextStyle(
                             color: isBooked
                                 ? Colors.grey
                                 : isSelected
-                                    ? Colors.white
-                                    : Colors.black,
+                                    ? Colors.black
+                                    : Colors.black87,
                           ),
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: 16),
+
+                    const SizedBox(height: 24),
+
+                    // Status Dropdown
                     DropdownButtonFormField<String>(
                       value: _status,
                       decoration: const InputDecoration(labelText: 'Status'),
                       items: const [
-                        DropdownMenuItem(value: 'Pending', child: Text('Pending')),
-                        DropdownMenuItem(value: 'Confirmed', child: Text('Confirmed')),
-                        DropdownMenuItem(value: 'On Progress', child: Text('On Progress')),
+                        DropdownMenuItem(
+                            value: 'Pending', child: Text('Pending')),
+                        DropdownMenuItem(
+                            value: 'Confirmed', child: Text('Confirmed')),
+                        DropdownMenuItem(
+                            value: 'On Progress', child: Text('On Progress')),
                         DropdownMenuItem(value: 'Done', child: Text('Done')),
-                        DropdownMenuItem(value: 'Cancelled', child: Text('Cancelled')),
+                        DropdownMenuItem(
+                            value: 'Cancelled', child: Text('Cancelled')),
                       ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() {
-                            _status = value;
-                          });
-                        }
-                      },
+                      onChanged: (value) =>
+                          setState(() => _status = value ?? _status),
                     ),
-                    const SizedBox(height: 16),
-                    const Text('Pilih Jasa Servis'),
+
+                    const SizedBox(height: 24),
+
+                    const Text('Pilih Jasa Servis',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+
                     ..._allServices.map((service) {
-                      final selected = _selectedServices.any((s) => s.id == service.id);
+                      final selected =
+                          _selectedServices.any((s) => s.id == service.id);
                       return CheckboxListTile(
                         title: Text(service.serviceName ?? '-'),
                         subtitle: Text('Harga: Rp ${service.price ?? '-'}'),
                         value: selected,
-                        onChanged: (bool? value) {
-                          if (value != null) {
-                            _onServiceSelected(value, service);
-                          }
-                        },
+                        onChanged: (value) =>
+                            _onServiceSelected(value ?? false, service),
+                        activeColor: Colors.amber[700],
+                        checkColor: Colors.black,
+                        controlAffinity: ListTileControlAffinity.leading,
                       );
                     }).toList(),
+
                     const SizedBox(height: 16),
-                    Text('Total Harga: Rp $_totalPrice'),
+
+                    Text('Total Harga: Rp $_totalPrice',
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+
                     const SizedBox(height: 16),
+
                     TextFormField(
                       decoration: const InputDecoration(labelText: 'Catatan'),
                       initialValue: _notes,
                       maxLines: 3,
                       onChanged: (value) => _notes = value,
                     ),
+
                     const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: _saveBooking,
-                      child: Text(widget.booking == null ? 'Simpan' : 'Update'),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _saveBooking,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber[700],
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: Text(widget.booking == null
+                            ? 'Simpan Booking'
+                            : 'Update Booking'),
+                      ),
                     ),
                   ],
                 ),
