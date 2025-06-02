@@ -71,40 +71,74 @@ class _EditMechanicPageState extends State<EditMechanicPage> {
     }
   }
 
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.black87),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.amber.shade700, width: 2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.grey, width: 1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.red.shade700, width: 2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.red.shade700, width: 2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Background putih bersih
       appBar: AppBar(
-        title: const Text('Edit Mekanik'),
+        backgroundColor: Colors.black, // AppBar hitam
+        iconTheme: const IconThemeData(color: Colors.amber), // Icon amber
+        title: const Text(
+          'Edit Mekanik',
+          style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold),
+        ),
+        elevation: 3,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
               TextFormField(
                 controller: _fullNameController,
-                decoration: const InputDecoration(labelText: 'Full Name'),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Full Name wajib diisi'
-                    : null,
+                decoration: _inputDecoration('Full Name'),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Full Name wajib diisi' : null,
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Phone'),
+                keyboardType: TextInputType.phone,
+                decoration: _inputDecoration('Phone'),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Phone wajib diisi' : null,
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _spesialisasiController,
-                decoration: const InputDecoration(labelText: 'Spesialisasi'),
+                decoration: _inputDecoration('Spesialisasi'),
               ),
+              const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _statusController.text.isNotEmpty
                     ? _statusController.text
                     : null,
-                decoration: const InputDecoration(labelText: 'Status'),
+                decoration: _inputDecoration('Status'),
                 items: const [
                   DropdownMenuItem(value: 'Active', child: Text('Active')),
                   DropdownMenuItem(value: 'Inactive', child: Text('Inactive')),
@@ -117,15 +151,31 @@ class _EditMechanicPageState extends State<EditMechanicPage> {
                     });
                   }
                 },
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Status wajib dipilih'
-                    : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Status wajib dipilih' : null,
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _save,
-                child: const Text('Simpan'),
-              ),
+              const SizedBox(height: 30),
+              SizedBox(
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber.shade700,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 5,
+                  ),
+                  onPressed: _save,
+                  child: const Text(
+                    'Simpan',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         ),

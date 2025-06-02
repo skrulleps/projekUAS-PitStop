@@ -15,7 +15,7 @@ class _MechanicFormPageState extends State<MechanicFormPage> {
   final TextEditingController _specializationController = TextEditingController();
   String? _selectedStatus;
 
-  final List<String> _statusOptions = ['Active', 'Inactive', 'On Leave']; // Contoh opsi, sesuaikan dengan public.mechanic_status
+  final List<String> _statusOptions = ['Active', 'Inactive', 'On Leave'];
 
   bool _isSaving = false;
 
@@ -57,40 +57,69 @@ class _MechanicFormPageState extends State<MechanicFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final amber = Colors.amber.shade700;
+
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Tambah Mekanik'),
+        foregroundColor: Colors.amber,
+        backgroundColor: Colors.black,
+        title: const Text(
+          'Tambah Mekanik',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        elevation: 4,
+        shadowColor: amber.withOpacity(0.7),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
+              _buildTextField(
                 controller: _fullNameController,
-                decoration: const InputDecoration(labelText: 'Full Name'),
+                label: 'Full Name',
                 validator: (value) => value == null || value.isEmpty ? 'Full Name wajib diisi' : null,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              const SizedBox(height: 20),
+              _buildTextField(
                 controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Phone'),
+                label: 'Phone',
                 keyboardType: TextInputType.phone,
                 validator: (value) => value == null || value.isEmpty ? 'Phone wajib diisi' : null,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
+              const SizedBox(height: 20),
+              _buildTextField(
                 controller: _specializationController,
-                decoration: const InputDecoration(labelText: 'Spesialisasi'),
+                label: 'Spesialisasi',
                 validator: (value) => value == null || value.isEmpty ? 'Spesialisasi wajib diisi' : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Status'),
+                decoration: InputDecoration(
+                  labelText: 'Status',
+                  labelStyle: TextStyle(color: amber),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: amber, width: 2),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: amber.withOpacity(0.6)),
+                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: amber.withOpacity(0.1),
+                ),
+                dropdownColor: Colors.white,
                 value: _selectedStatus,
                 items: _statusOptions
-                    .map((status) => DropdownMenuItem(value: status, child: Text(status)))
+                    .map((status) => DropdownMenuItem(
+                          value: status,
+                          child: Text(status, style: const TextStyle(fontWeight: FontWeight.w600)),
+                        ))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -99,16 +128,60 @@ class _MechanicFormPageState extends State<MechanicFormPage> {
                 },
                 validator: (value) => value == null || value.isEmpty ? 'Status wajib dipilih' : null,
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isSaving ? null : _saveMechanic,
-                child: _isSaving
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Save'),
+              const SizedBox(height: 36),
+              SizedBox(
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: amber,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 6,
+                    shadowColor: amber.withOpacity(0.6),
+                  ),
+                  onPressed: _isSaving ? null : _saveMechanic,
+                  child: _isSaving
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Save',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    final amber = Colors.amber.shade700;
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: amber),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: amber, width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: amber.withOpacity(0.6)),
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        filled: true,
+        fillColor: amber.withOpacity(0.1),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
     );
   }
