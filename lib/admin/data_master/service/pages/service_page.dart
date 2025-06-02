@@ -70,7 +70,7 @@ class _ServicePageState extends State<ServicePage> {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Hapus'),
+            child: const Text('Hapus', style: TextStyle(color: Colors.amber)),
           ),
         ],
       ),
@@ -94,51 +94,88 @@ class _ServicePageState extends State<ServicePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,  // Background putih
       appBar: AppBar(
+        foregroundColor: Colors.amber,
+        backgroundColor: Colors.black,  // AppBar hitam
         title: const Text('Daftar Service'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add, color: Colors.amber),  // Icon amber
             onPressed: _navigateToAdd,
+            tooltip: 'Tambah Service',
           ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Colors.amber))
           : _services.isEmpty
-              ? const Center(child: Text('Belum ada data service'))
+              ? const Center(
+                  child: Text(
+                    'Belum ada data service',
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                )
               : ListView.builder(
+                  padding: const EdgeInsets.all(12),
                   itemCount: _services.length,
                   itemBuilder: (context, index) {
                     final service = _services[index];
-                    return ListTile(
-                      title: Text(service.serviceName ?? '-'),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(service.description ?? '-'),
-                          const SizedBox(height: 4),
-                          Text('Harga: Rp ${service.price ?? '-'}'),
-                        ],
+                    return Card(
+                      elevation: 3,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _navigateToEdit(service),
+                      child: ListTile(
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        title: Text(
+                          service.serviceName ?? '-',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              if (service.id != null) {
-                                _deleteService(service.id!);
-                              }
-                            },
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                service.description ?? '-',
+                                style: const TextStyle(color: Colors.black87),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Harga: Rp ${service.price ?? '-'}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600, color: Colors.amber),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.amber),
+                              onPressed: () => _navigateToEdit(service),
+                              tooltip: 'Edit Service',
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.redAccent),
+                              onPressed: () {
+                                if (service.id != null) {
+                                  _deleteService(service.id!);
+                                }
+                              },
+                              tooltip: 'Hapus Service',
+                            ),
+                          ],
+                        ),
+                        onTap: () => _navigateToDetail(service),
                       ),
-                      onTap: () => _navigateToDetail(service),
                     );
                   },
                 ),

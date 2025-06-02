@@ -64,57 +64,124 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
     if (success) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(widget.service == null ? 'Service berhasil ditambahkan' : 'Service berhasil diubah')),
+          SnackBar(
+            content: Text(
+              widget.service == null ? 'Service berhasil ditambahkan' : 'Service berhasil diubah',
+            ),
+            backgroundColor: Colors.amber[700],
+          ),
         );
         Navigator.of(context).pop(true);
       }
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(widget.service == null ? 'Gagal menambahkan service' : 'Gagal mengubah service')),
+          SnackBar(
+            content: Text(
+              widget.service == null ? 'Gagal menambahkan service' : 'Gagal mengubah service',
+            ),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }
+  }
+
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+      focusedBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.amber, width: 2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.black54, width: 1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Colors.redAccent, width: 2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.service != null;
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Service' : 'Tambah Service'),
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.amber),
+        title: Text(
+          isEditing ? 'Edit Service' : 'Tambah Service',
+          style: const TextStyle(color: Colors.amber),
+        ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
               TextFormField(
                 controller: _serviceNameController,
-                decoration: const InputDecoration(labelText: 'Service Name'),
-                validator: (value) => value == null || value.isEmpty ? 'Service Name wajib diisi' : null,
+                decoration: _inputDecoration('Service Name'),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Service Name wajib diisi' : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-                validator: (value) => value == null || value.isEmpty ? 'Description wajib diisi' : null,
+                decoration: _inputDecoration('Description'),
+                maxLines: 4,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Description wajib diisi' : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _priceController,
-                decoration: const InputDecoration(labelText: 'Price'),
+                decoration: _inputDecoration('Price'),
                 validator: (value) => value == null || value.isEmpty ? 'Price wajib diisi' : null,
                 keyboardType: TextInputType.number,
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isSaving ? null : _saveService,
-                child: _isSaving
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text(isEditing ? 'Update' : 'Save'),
+              const SizedBox(height: 30),
+              SizedBox(
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: _isSaving ? null : _saveService,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber[700],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 4,
+                    shadowColor: Colors.amberAccent.withOpacity(0.5),
+                  ),
+                  child: _isSaving
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        )
+                      : Text(
+                          isEditing ? 'Update' : 'Save',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                ),
               ),
             ],
           ),
