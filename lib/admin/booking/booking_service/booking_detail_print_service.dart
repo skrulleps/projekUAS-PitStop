@@ -20,36 +20,64 @@ class BookingDetailPrintService {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('PitStop Booking Receipt',
-                  style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 10),
-              pw.Text('User: $userFullName'),
-              pw.Text('Mechanic: $mechanicFullName'),
-              pw.Text('Date: ${booking.bookingsDate?.toLocal().toIso8601String().split("T")[0] ?? '-'}'),
-              pw.Text('Time: ${booking.bookingsTime ?? '-'}'),
-              pw.Text('Status: ${booking.status ?? '-'}'),
-              pw.Divider(),
-              pw.Text('Services:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-              pw.Column(
-                children: services.map((service) {
-                  return pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pw.Text(service.serviceName ?? '-'),
-                      pw.Text('Rp ${service.price != null ? service.price.toString() : '-'}'),
-                    ],
-                  );
-                }).toList(),
+              pw.Center(
+                child: pw.Text(
+                  'PITSTOP SERVICE',
+                  style: pw.TextStyle(
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
               ),
-              pw.Divider(),
-              pw.Text('Total Price: Rp ${booking.totalPrice?.toStringAsFixed(2) ?? '-'}',
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 5),
+              pw.Center(
+                child: pw.Text(
+                  'BOOKING RECEIPT',
+                  style: pw.TextStyle(fontSize: 12),
+                ),
+              ),
               pw.SizedBox(height: 10),
-              pw.Text('Notes:'),
-              pw.Text(booking.notes ?? '-'),
+              _buildRow('User', userFullName),
+              _buildRow('Mechanic', mechanicFullName),
+              _buildRow(
+                  'Date',
+                  booking.bookingsDate != null
+                      ? booking.bookingsDate!.toLocal().toString().split(' ')[0]
+                      : '-'),
+              _buildRow('Time', booking.bookingsTime ?? '-'),
+              _buildRow('Status', booking.status ?? '-'),
+              pw.Divider(thickness: 1),
+              pw.Text('Services:',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 4),
+              ...services.map((service) {
+                return _buildRow(
+                  service.serviceName ?? '-',
+                  'Rp ${service.price?.toString() ?? '-'}',
+                );
+              }).toList(),
+              pw.Divider(thickness: 1),
+              _buildRow(
+                'Total',
+                'Rp ${booking.totalPrice?.toStringAsFixed(0) ?? '-'}',
+                isBold: true,
+              ),
+              pw.SizedBox(height: 10),
+              pw.Text('Notes:',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Text(booking.notes?.trim().isNotEmpty == true
+                  ? booking.notes!
+                  : '-'),
               pw.SizedBox(height: 20),
-              pw.Text('Thank you for your booking!',
-                  style: pw.TextStyle(fontStyle: pw.FontStyle.italic)),
+              pw.Center(
+                child: pw.Text(
+                  'Thank you for your booking!',
+                  style: pw.TextStyle(
+                    fontStyle: pw.FontStyle.italic,
+                    fontSize: 10,
+                  ),
+                ),
+              ),
             ],
           );
         },
@@ -57,5 +85,30 @@ class BookingDetailPrintService {
     );
 
     await Printing.layoutPdf(onLayout: (format) => pdf.save());
+  }
+
+  pw.Widget _buildRow(String label, String value, {bool isBold = false}) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(vertical: 2),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Expanded(
+            child: pw.Text(
+              label,
+              style: pw.TextStyle(
+                  fontSize: 10,
+                  fontWeight: isBold ? pw.FontWeight.bold : pw.FontWeight.normal),
+            ),
+          ),
+          pw.Text(
+            value,
+            style: pw.TextStyle(
+                fontSize: 10,
+                fontWeight: isBold ? pw.FontWeight.bold : pw.FontWeight.normal),
+          ),
+        ],
+      ),
+    );
   }
 }
