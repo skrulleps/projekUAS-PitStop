@@ -29,7 +29,7 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
     _fullNameController = TextEditingController(text: widget.customer.fullName);
     _phoneController = TextEditingController(text: widget.customer.phone);
     _addressController = TextEditingController(text: widget.customer.address);
-    // Convert photos from String? to Uint8List? if needed
+
     if (widget.customer.photos is String) {
       _photoBytes = null;
     } else {
@@ -70,7 +70,6 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
         'full_name': _fullNameController.text,
         'phone': _phoneController.text,
         'address': _addressController.text,
-        // 'photos': avatarPath ?? widget.customer.photos,
         'updated_at': DateTime.now().toIso8601String(),
       };
 
@@ -81,10 +80,7 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
         );
         return;
       }
-      final success = await CustomerService().updateCustomer(
-        customerId,
-        updateData,
-      );
+      final success = await CustomerService().updateCustomer(customerId, updateData);
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -102,8 +98,12 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Edit Customer'),
+        title: const Text('Edit Customer', style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.amber[700],
+        iconTheme: const IconThemeData(color: Colors.black),
+        elevation: 2,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -111,42 +111,61 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
           key: _formKey,
           child: ListView(
             children: [
-              GestureDetector(
-                onTap: _pickImage,
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage:
-                      _photoBytes != null ? MemoryImage(_photoBytes!) : null,
-                  child: _photoBytes == null
-                      ? const Icon(Icons.camera_alt, size: 50)
-                      : null,
+              Center(
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.amber[100],
+                    backgroundImage: _photoBytes != null ? MemoryImage(_photoBytes!) : null,
+                    child: _photoBytes == null
+                        ? const Icon(Icons.camera_alt, size: 50, color: Colors.black)
+                        : null,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _fullNameController,
-                decoration: const InputDecoration(labelText: 'Full Name'),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Full Name wajib diisi'
-                    : null,
+                decoration: const InputDecoration(
+                  labelText: 'Full Name',
+                  labelStyle: TextStyle(color: Colors.black),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.amber),
+                  ),
+                ),
+                validator: (value) => value == null || value.isEmpty ? 'Full Name wajib diisi' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Phone'),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Phone wajib diisi' : null,
+                decoration: const InputDecoration(
+                  labelText: 'Phone',
+                  labelStyle: TextStyle(color: Colors.black),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.amber),
+                  ),
+                ),
+                validator: (value) => value == null || value.isEmpty ? 'Phone wajib diisi' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _addressController,
-                decoration: const InputDecoration(labelText: 'Address'),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Address wajib diisi'
-                    : null,
+                decoration: const InputDecoration(
+                  labelText: 'Address',
+                  labelStyle: TextStyle(color: Colors.black),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.amber),
+                  ),
+                ),
+                validator: (value) => value == null || value.isEmpty ? 'Address wajib diisi' : null,
               ),
               const SizedBox(height: 24),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber[700],
+                  foregroundColor: Colors.black,
+                ),
                 onPressed: _save,
                 child: const Text('Simpan'),
               ),

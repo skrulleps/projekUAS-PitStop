@@ -41,11 +41,8 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
 
     String? avatarPath;
     if (_photoBytes != null) {
-      // Buat file sementara dari _photoBytes
       final tempDir = await getTemporaryDirectory();
       final file = await File('${tempDir.path}/temp_avatar.jpg').writeAsBytes(_photoBytes!);
-
-      // Upload foto ke bucket avatar
       avatarPath = await CustomerService().uploadAvatar(file);
     }
 
@@ -78,11 +75,30 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
     }
   }
 
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.black87),
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.amber),
+      ),
+      enabledBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.black26),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Tambah Customer'),
+        backgroundColor: Colors.black,
+        title: const Text(
+          'Tambah Customer',
+          style: TextStyle(color: Colors.amber),
+        ),
+        iconTheme: const IconThemeData(color: Colors.amber),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -96,22 +112,23 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
                   radius: 50,
                   backgroundImage:
                       _photoBytes != null ? MemoryImage(_photoBytes!) : null,
+                  backgroundColor: Colors.amber.shade100,
                   child: _photoBytes == null
-                      ? const Icon(Icons.camera_alt, size: 50)
+                      ? const Icon(Icons.camera_alt, size: 50, color: Colors.black54)
                       : null,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _fullNameController,
-                decoration: const InputDecoration(labelText: 'Full Name'),
+                decoration: _inputDecoration('Full Name'),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Full Name wajib diisi' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Phone'),
+                decoration: _inputDecoration('Phone'),
                 keyboardType: TextInputType.phone,
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Phone wajib diisi' : null,
@@ -119,16 +136,21 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _addressController,
-                decoration: const InputDecoration(labelText: 'Address'),
+                decoration: _inputDecoration('Address'),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Address wajib diisi' : null,
               ),
               const SizedBox(height: 24),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
                 onPressed: _isSaving ? null : _saveCustomer,
                 child: _isSaving
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Save'),
+                    ? const CircularProgressIndicator(color: Colors.black)
+                    : const Text('Simpan'),
               ),
             ],
           ),
