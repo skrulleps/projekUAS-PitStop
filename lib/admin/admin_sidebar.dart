@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, use_super_parameters
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,7 +16,7 @@ class AdminSidebar extends StatefulWidget {
 class _AdminSidebarState extends State<AdminSidebar> {
   bool _isDataMasterExpanded = false;
   bool _isBookingExpanded = false;
-  bool _isLaporanExpanded = false;
+  final bool _isLaporanExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +127,9 @@ class _AdminSidebarState extends State<AdminSidebar> {
               final authRepository = AuthRepository();
               await authRepository.signOut(userBloc);
               if (mounted) {
+                // ignore: use_build_context_synchronously
                 Navigator.of(context).pop(); // close drawer
+                // ignore: use_build_context_synchronously
                 context.go('/login');
               }
             },

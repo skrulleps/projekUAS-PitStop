@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'model/booking_model.dart';
-import 'model/booking_service_model.dart';
+// import 'model/booking_service_model.dart';
 import 'package:pitstop/admin/data_master/service/model/service_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'booking_service/booking_print_service.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
+// import 'booking_service/booking_print_service.dart';
 import 'booking_service/booking_detail_print_service.dart';
 
 class BookingDetailFormPage extends StatefulWidget {
@@ -13,6 +13,7 @@ class BookingDetailFormPage extends StatefulWidget {
   final List<Map<String, dynamic>> profiles;
   final List<Map<String, dynamic>> mechanics;
 
+  // ignore: use_super_parameters
   const BookingDetailFormPage({
     Key? key,
     required this.booking,
