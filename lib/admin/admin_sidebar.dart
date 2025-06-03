@@ -19,97 +19,107 @@ class _AdminSidebarState extends State<AdminSidebar> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.amber,
-            ),
-            child: Text('Admin Menu',
-                style: TextStyle(color: Colors.white, fontSize: 24)),
+  child: SafeArea(
+    child: Column(
+      children: [
+        // Header dengan bg hitam dan teks amber
+        const DrawerHeader(
+          decoration: BoxDecoration(
+            color: Colors.black,
           ),
-          ExpansionTile(
-            title: const Text('Data Master'),
-            leading: const Icon(Icons.folder),
-            initiallyExpanded: _isDataMasterExpanded,
-            onExpansionChanged: (expanded) {
-              setState(() {
-                _isDataMasterExpanded = expanded;
-              });
-            },
+          child: Text(
+            'Admin Menu',
+            style: TextStyle(color: Colors.amber, fontSize: 24),
+          ),
+        ),
+
+        // Menu utama yang bisa discroll
+        Expanded(
+          child: ListView(
+            padding: EdgeInsets.zero,
             children: [
-              ListTile(
-                title: const Text('Data Akun'),
-                onTap: () {
-                  context.go('/admin/data-master/data-akun');
+              ExpansionTile(
+                title: const Text(
+                  'Data Master',
+                  style: TextStyle(color: Colors.black87),
+                ),
+                leading: const Icon(Icons.folder, color: Colors.amber),
+                initiallyExpanded: false,
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    _isDataMasterExpanded = expanded;
+                  });
                 },
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.account_circle, color: Colors.amber),
+                    title: const Text('Data Akun', style: TextStyle(color: Colors.black87)),
+                    onTap: () {
+                      context.go('/admin/data-master/data-akun');
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.people, color: Colors.amber),
+                    title: const Text('Data Customer', style: TextStyle(color: Colors.black87)),
+                    onTap: () {
+                      context.go('/admin/data-master/data-customer');
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.build, color: Colors.amber),
+                    title: const Text('Data Mekanik', style: TextStyle(color: Colors.black87)),
+                    onTap: () {
+                      context.go('/admin/data-master/data-mekanik');
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.miscellaneous_services, color: Colors.amber),
+                    title: const Text('Data Jenis Servis', style: TextStyle(color: Colors.black87)),
+                    onTap: () {
+                      context.go('/admin/data-master/data-jenis-servis');
+                    },
+                  ),
+                ],
               ),
-              ListTile(
-                title: const Text('Data Customer'),
-                onTap: () {
-                  context.go('/admin/data-master/data-customer');
+              ExpansionTile(
+                title: const Text(
+                  'Booking',
+                  style: TextStyle(color: Colors.black87),
+                ),
+                leading: const Icon(Icons.book_online, color: Colors.amber),
+                initiallyExpanded: false,
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    _isBookingExpanded = expanded;
+                  });
                 },
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.list_alt, color: Colors.amber),
+                    title: const Text('Data Booking', style: TextStyle(color: Colors.black87)),
+                    onTap: () {
+                      context.go('/admin/data-booking');
+                    },
+                  ),
+                ],
               ),
-              ListTile(
-                title: const Text('Data Mekanik'),
-                onTap: () {
-                  context.go('/admin/data-master/data-mekanik');
-                },
-              ),
-              ListTile(
-                title: const Text('Data Jenis Servis'),
-                onTap: () {
-                  context.go('/admin/data-master/data-jenis-servis');
-                },
-              ),
+
+              // Beri jarak ekstra sebelum Logout
+              const SizedBox(height: 40),
             ],
           ),
-          ExpansionTile(
-            title: const Text('Booking'),
-            leading: const Icon(Icons.book_online),
-            initiallyExpanded: _isBookingExpanded,
-            onExpansionChanged: (expanded) {
-              setState(() {
-                _isBookingExpanded = expanded;
-              });
-            },
-            children: [
-              ListTile(
-                title: const Text('Data Booking'),
-                onTap: () {
-                  context.go('/admin/data-booking');
-                },
-              ),
-            ],
+        ),
+
+        // Logout di footer, background hitam, teks amber
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: Colors.grey.shade300)),
+            color: Colors.black,
           ),
-          // ExpansionTile(
-          //   title: const Text('Laporan'),
-          //   leading: const Icon(Icons.insert_chart),
-          //   initiallyExpanded: _isLaporanExpanded,
-          //   onExpansionChanged: (expanded) {
-          //     setState(() {
-          //       _isLaporanExpanded = expanded;
-          //     });
-          //   },
-          //   children: [
-          //     ListTile(
-          //       title: const Text('Laporan Pendapatan'),
-          //       onTap: () {
-          //         context.go('/admin/laporan/laporan-pendapatan');
-          //       },
-          //     ),
-          //     ListTile(
-          //       title: const Text('Laporan Booking'),
-          //       onTap: () {
-          //         context.go('/admin/laporan/laporan-booking');
-          //       },
-          //     ),
-          //   ],
-          // ), 
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
+          child: ListTile(
+            leading: const Icon(Icons.logout, color: Colors.amber),
+            title: const Text('Logout', style: TextStyle(color: Colors.amber)),
             onTap: () async {
               final userBloc = BlocProvider.of<UserBloc>(context);
               final authRepository = AuthRepository();
@@ -120,8 +130,11 @@ class _AdminSidebarState extends State<AdminSidebar> {
               }
             },
           ),
-        ],
-      ),
-    );
+        ),
+      ],
+    ),
+  ),
+);
+
   }
 }
