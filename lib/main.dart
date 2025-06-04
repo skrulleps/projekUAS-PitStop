@@ -232,8 +232,6 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-<<<<<<< HEAD
+
 }
-=======
-}
->>>>>>> view2
+
