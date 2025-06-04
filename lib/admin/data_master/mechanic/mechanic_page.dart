@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
+=======
+import 'package:go_router/go_router.dart';
+>>>>>>> view2
 import 'package:pitstop/admin/data_master/mechanic/service/mechanic_service.dart';
 import 'package:pitstop/admin/data_master/mechanic/state/mechanic_state.dart';
 import 'package:pitstop/admin/data_master/mechanic/pages/edit_mechanic_page.dart';
@@ -36,6 +40,7 @@ class _MechanicPageState extends State<MechanicPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+<<<<<<< HEAD
       backgroundColor: Colors.white, // Background putih
       appBar: AppBar(
         backgroundColor: Colors.black, // AppBar hitam
@@ -52,10 +57,18 @@ class _MechanicPageState extends State<MechanicPage> {
                 color: Colors.amber, // Loader amber
               ),
             )
+=======
+      appBar: AppBar(
+        title: const Text('Data Mekanik'),
+      ),
+      body: _state.isLoading
+          ? const Center(child: CircularProgressIndicator())
+>>>>>>> view2
           : ListView.builder(
               itemCount: _state.mechanics.length,
               itemBuilder: (context, index) {
                 final mechanic = _state.mechanics[index];
+<<<<<<< HEAD
                 return Card(
                   margin:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -176,12 +189,80 @@ class _MechanicPageState extends State<MechanicPage> {
                       ],
                     ),
                   ),
+=======
+                return ListTile(
+                  title: Text(mechanic.fullName ?? 'No Name'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Spesialisasi: ${mechanic.spesialisasi ?? '-'}'),
+                      Text('Status: ${mechanic.status ?? '-'}'),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {
+                          Navigator.of(context)
+                              .push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  EditMechanicPage(mechanic: mechanic),
+                            ),
+                          )
+                              .then((value) {
+                            if (value == true) {
+                              _loadMechanics();
+                            }
+                          });
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () async {
+                          final mechanicId = _state.mechanics[index].id;
+                          if (mechanicId == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('ID mekanik tidak valid')),
+                            );
+                            return;
+                          }
+                          final success = await MechanicService()
+                              .deleteMechanic(mechanicId);
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Data mekanik berhasil dihapus')),
+                            );
+                            await _loadMechanics();
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Gagal menghapus data mekanik')),
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    // TODO: Implement detail or edit mechanic
+                  },
+>>>>>>> view2
                 );
               },
             ),
       floatingActionButton: FloatingActionButton(
+<<<<<<< HEAD
         backgroundColor: Colors.amber, // Amber background
         foregroundColor: Colors.black, // Icon hitam
+=======
+>>>>>>> view2
         onPressed: () {
           Navigator.of(context)
               .push(
@@ -199,4 +280,8 @@ class _MechanicPageState extends State<MechanicPage> {
       ),
     );
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> view2

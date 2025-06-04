@@ -71,12 +71,16 @@ class _BookingDetailFormPageState extends State<BookingDetailFormPage> {
 
     return Scaffold(
       appBar: AppBar(
+<<<<<<< HEAD
         backgroundColor: Colors.amber[700],
         foregroundColor: Colors.black,
         title: const Text(
           'Detail Booking',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+=======
+        title: const Text('Detail Booking'),
+>>>>>>> view2
         actions: [
           IconButton(
             icon: const Icon(Icons.print),
@@ -85,11 +89,15 @@ class _BookingDetailFormPageState extends State<BookingDetailFormPage> {
           ),
         ],
       ),
+<<<<<<< HEAD
       backgroundColor: Colors.white,
+=======
+>>>>>>> view2
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
+<<<<<<< HEAD
             _buildReadOnlyField('User', _getUserFullName() ?? widget.booking.usersId ?? ''),
             _buildReadOnlyField('Mekanik', _getMechanicFullName() ?? widget.booking.mechanicsId ?? ''),
             _buildReadOnlyField('Tanggal Booking', dateText),
@@ -136,11 +144,56 @@ class _BookingDetailFormPageState extends State<BookingDetailFormPage> {
             ),
             const SizedBox(height: 16),
             _buildReadOnlyField('Catatan', widget.booking.notes ?? '', maxLines: 3),
+=======
+            TextFormField(
+              initialValue: _getUserFullName() ?? widget.booking.usersId ?? '',
+              decoration: const InputDecoration(labelText: 'User'),
+              readOnly: true,
+            ),
+            TextFormField(
+              initialValue: _getMechanicFullName() ?? widget.booking.mechanicsId ?? '',
+              decoration: const InputDecoration(labelText: 'Mekanik'),
+              readOnly: true,
+            ),
+            TextFormField(
+              initialValue: dateText,
+              decoration: const InputDecoration(labelText: 'Tanggal Booking'),
+              readOnly: true,
+            ),
+            TextFormField(
+              initialValue: timeText,
+              decoration: const InputDecoration(labelText: 'Waktu Booking'),
+              readOnly: true,
+            ),
+            TextFormField(
+              initialValue: widget.booking.status ?? '',
+              decoration: const InputDecoration(labelText: 'Status'),
+              readOnly: true,
+            ),
+            const SizedBox(height: 16),
+            const Text('Jasa Servis'),
+            ...widget.services.map((service) {
+              return ListTile(
+                title: Text(service.serviceName ?? '-'),
+                subtitle: Text('Harga: Rp ${service.price ?? '-'}'),
+              );
+            }).toList(),
+            const SizedBox(height: 16),
+            Text('Total Harga: Rp ${widget.booking.totalPrice?.toStringAsFixed(2) ?? '-'}'),
+            const SizedBox(height: 16),
+            TextFormField(
+              initialValue: widget.booking.notes ?? '',
+              decoration: const InputDecoration(labelText: 'Catatan'),
+              maxLines: 3,
+              readOnly: true,
+            ),
+>>>>>>> view2
           ],
         ),
       ),
     );
   }
+<<<<<<< HEAD
 
   Widget _buildReadOnlyField(String label, String value, {int maxLines = 1}) {
     return Padding(
@@ -167,4 +220,6 @@ class _BookingDetailFormPageState extends State<BookingDetailFormPage> {
       ),
     );
   }
+=======
+>>>>>>> view2
 }

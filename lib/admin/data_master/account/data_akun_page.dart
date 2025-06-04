@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../admin_sidebar.dart';
 import 'user_account_model.dart';
+<<<<<<< HEAD
 import 'user_account_detail_page.dart';
 import 'tambah_akun_page.dart';
+=======
+>>>>>>> view2
 
 class DataAkunPage extends StatefulWidget {
   const DataAkunPage({Key? key}) : super(key: key);
@@ -23,8 +26,12 @@ class _DataAkunPageState extends State<DataAkunPage> {
   }
 
   Future<List<UserAccount>> fetchUsers() async {
+<<<<<<< HEAD
     final response =
         await supabase.from('users').select('id, email, username, role');
+=======
+    final response = await supabase.from('users').select('id, email, role');
+>>>>>>> view2
     if (response == null) {
       throw Exception('Failed to load users: response is null');
     }
@@ -32,6 +39,7 @@ class _DataAkunPageState extends State<DataAkunPage> {
     return data.map((e) => UserAccount.fromMap(e)).toList();
   }
 
+<<<<<<< HEAD
   Future<void> _refreshData() async {
     setState(() {
       _usersFuture = fetchUsers();
@@ -66,12 +74,22 @@ class _DataAkunPageState extends State<DataAkunPage> {
         foregroundColor: Colors.black,
         child: const Icon(Icons.add),
       ),
+=======
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Data Akun'),
+      ),
+      drawer: const AdminSidebar(),
+>>>>>>> view2
       body: FutureBuilder<List<UserAccount>>(
         future: _usersFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
+<<<<<<< HEAD
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('Tidak ada akun ditemukan.'));
@@ -122,6 +140,22 @@ class _DataAkunPageState extends State<DataAkunPage> {
                   );
                 },
               ),
+=======
+            return Center(child: Text('Error: \${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No users found.'));
+          } else {
+            final users = snapshot.data!;
+            return ListView.builder(
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                final user = users[index];
+                return ListTile(
+                  title: Text(user.email),
+                  subtitle: Text('Role: ${user.role}'),
+                );
+              },
+>>>>>>> view2
             );
           }
         },

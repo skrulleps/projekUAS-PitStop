@@ -15,7 +15,11 @@ class _MechanicFormPageState extends State<MechanicFormPage> {
   final TextEditingController _specializationController = TextEditingController();
   String? _selectedStatus;
 
+<<<<<<< HEAD
   final List<String> _statusOptions = ['Active', 'Inactive', 'On Leave'];
+=======
+  final List<String> _statusOptions = ['Active', 'Inactive', 'On Leave']; // Contoh opsi, sesuaikan dengan public.mechanic_status
+>>>>>>> view2
 
   bool _isSaving = false;
 
@@ -57,6 +61,7 @@ class _MechanicFormPageState extends State<MechanicFormPage> {
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
     final amber = Colors.amber.shade700;
 
     return Scaffold(
@@ -74,10 +79,19 @@ class _MechanicFormPageState extends State<MechanicFormPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32),
+=======
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tambah Mekanik'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+>>>>>>> view2
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
+<<<<<<< HEAD
               _buildTextField(
                 controller: _fullNameController,
                 label: 'Full Name',
@@ -120,6 +134,32 @@ class _MechanicFormPageState extends State<MechanicFormPage> {
                           value: status,
                           child: Text(status, style: const TextStyle(fontWeight: FontWeight.w600)),
                         ))
+=======
+              TextFormField(
+                controller: _fullNameController,
+                decoration: const InputDecoration(labelText: 'Full Name'),
+                validator: (value) => value == null || value.isEmpty ? 'Full Name wajib diisi' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _phoneController,
+                decoration: const InputDecoration(labelText: 'Phone'),
+                keyboardType: TextInputType.phone,
+                validator: (value) => value == null || value.isEmpty ? 'Phone wajib diisi' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _specializationController,
+                decoration: const InputDecoration(labelText: 'Spesialisasi'),
+                validator: (value) => value == null || value.isEmpty ? 'Spesialisasi wajib diisi' : null,
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(labelText: 'Status'),
+                value: _selectedStatus,
+                items: _statusOptions
+                    .map((status) => DropdownMenuItem(value: status, child: Text(status)))
+>>>>>>> view2
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -128,6 +168,7 @@ class _MechanicFormPageState extends State<MechanicFormPage> {
                 },
                 validator: (value) => value == null || value.isEmpty ? 'Status wajib dipilih' : null,
               ),
+<<<<<<< HEAD
               const SizedBox(height: 36),
               SizedBox(
                 height: 50,
@@ -148,6 +189,14 @@ class _MechanicFormPageState extends State<MechanicFormPage> {
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                 ),
+=======
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _isSaving ? null : _saveMechanic,
+                child: _isSaving
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Save'),
+>>>>>>> view2
               ),
             ],
           ),
@@ -155,6 +204,7 @@ class _MechanicFormPageState extends State<MechanicFormPage> {
       ),
     );
   }
+<<<<<<< HEAD
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -185,4 +235,6 @@ class _MechanicFormPageState extends State<MechanicFormPage> {
       ),
     );
   }
+=======
+>>>>>>> view2
 }

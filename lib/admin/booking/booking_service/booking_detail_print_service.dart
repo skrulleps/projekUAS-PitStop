@@ -20,6 +20,7 @@ class BookingDetailPrintService {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
+<<<<<<< HEAD
               pw.Center(
                 child: pw.Text(
                   'PITSTOP SERVICE',
@@ -78,6 +79,38 @@ class BookingDetailPrintService {
                   ),
                 ),
               ),
+=======
+              pw.Text('PitStop Booking Receipt',
+                  style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 10),
+              pw.Text('User: $userFullName'),
+              pw.Text('Mechanic: $mechanicFullName'),
+              pw.Text('Date: ${booking.bookingsDate?.toLocal().toIso8601String().split("T")[0] ?? '-'}'),
+              pw.Text('Time: ${booking.bookingsTime ?? '-'}'),
+              pw.Text('Status: ${booking.status ?? '-'}'),
+              pw.Divider(),
+              pw.Text('Services:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.Column(
+                children: services.map((service) {
+                  return pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text(service.serviceName ?? '-'),
+                      pw.Text('Rp ${service.price != null ? service.price.toString() : '-'}'),
+                    ],
+                  );
+                }).toList(),
+              ),
+              pw.Divider(),
+              pw.Text('Total Price: Rp ${booking.totalPrice?.toStringAsFixed(2) ?? '-'}',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 10),
+              pw.Text('Notes:'),
+              pw.Text(booking.notes ?? '-'),
+              pw.SizedBox(height: 20),
+              pw.Text('Thank you for your booking!',
+                  style: pw.TextStyle(fontStyle: pw.FontStyle.italic)),
+>>>>>>> view2
             ],
           );
         },
@@ -86,6 +119,7 @@ class BookingDetailPrintService {
 
     await Printing.layoutPdf(onLayout: (format) => pdf.save());
   }
+<<<<<<< HEAD
 
   pw.Widget _buildRow(String label, String value, {bool isBold = false}) {
     return pw.Padding(
@@ -111,4 +145,6 @@ class BookingDetailPrintService {
       ),
     );
   }
+=======
+>>>>>>> view2
 }

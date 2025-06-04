@@ -36,6 +36,7 @@ extension BookingServiceExtension on BookingService {
     }
   }
 
+<<<<<<< HEAD
   Future<List<ServiceModel>?> getServicesByUserIdAndDateTime(String? userId, DateTime? date, String? time) async {
     if (userId == null || userId.isEmpty || date == null || time == null || time.isEmpty) {
       return null;
@@ -72,6 +73,8 @@ extension BookingServiceExtension on BookingService {
     }
   }
 
+=======
+>>>>>>> view2
   Future<double?> getTotalPriceByUserId(String? userId) async {
     if (userId == null || userId.isEmpty) {
       return null;
@@ -120,6 +123,7 @@ extension BookingServiceExtension on BookingService {
     }
   }
 
+<<<<<<< HEAD
   Future<bool> updateStatusByUserIdDateTime(String userId, DateTime date, String time, String status) async {
     try {
       final SupabaseClient client = Supabase.instance.client;
@@ -145,6 +149,8 @@ extension BookingServiceExtension on BookingService {
     }
   }
 
+=======
+>>>>>>> view2
   Future<bool> deleteByUserId(String userId) async {
     try {
       final SupabaseClient client = Supabase.instance.client;

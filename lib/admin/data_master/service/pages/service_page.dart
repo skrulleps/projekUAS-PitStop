@@ -70,7 +70,11 @@ class _ServicePageState extends State<ServicePage> {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
+<<<<<<< HEAD
             child: const Text('Hapus', style: TextStyle(color: Colors.amber)),
+=======
+            child: const Text('Hapus'),
+>>>>>>> view2
           ),
         ],
       ),
@@ -94,6 +98,7 @@ class _ServicePageState extends State<ServicePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+<<<<<<< HEAD
       backgroundColor: Colors.white,  // Background putih
       appBar: AppBar(
         foregroundColor: Colors.amber,
@@ -104,10 +109,19 @@ class _ServicePageState extends State<ServicePage> {
             icon: const Icon(Icons.add, color: Colors.amber),  // Icon amber
             onPressed: _navigateToAdd,
             tooltip: 'Tambah Service',
+=======
+      appBar: AppBar(
+        title: const Text('Daftar Service'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: _navigateToAdd,
+>>>>>>> view2
           ),
         ],
       ),
       body: _isLoading
+<<<<<<< HEAD
           ? const Center(child: CircularProgressIndicator(color: Colors.amber))
           : _services.isEmpty
               ? const Center(
@@ -176,6 +190,43 @@ class _ServicePageState extends State<ServicePage> {
                         ),
                         onTap: () => _navigateToDetail(service),
                       ),
+=======
+          ? const Center(child: CircularProgressIndicator())
+          : _services.isEmpty
+              ? const Center(child: Text('Belum ada data service'))
+              : ListView.builder(
+                  itemCount: _services.length,
+                  itemBuilder: (context, index) {
+                    final service = _services[index];
+                    return ListTile(
+                      title: Text(service.serviceName ?? '-'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(service.description ?? '-'),
+                          const SizedBox(height: 4),
+                          Text('Harga: Rp ${service.price ?? '-'}'),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => _navigateToEdit(service),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () {
+                              if (service.id != null) {
+                                _deleteService(service.id!);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      onTap: () => _navigateToDetail(service),
+>>>>>>> view2
                     );
                   },
                 ),

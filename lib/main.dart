@@ -7,7 +7,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'admin/admin_dashboard_page.dart';
 // import 'admin/admin_sidebar.dart';
 import 'admin/data_master/account/data_akun_page.dart';
+<<<<<<< HEAD
 import 'package:pitstop/admin/booking/booking_page.dart';
+=======
+import 'package:pitstop/admin/booking/booking_page.dart'; // Pastikan ini adalah halaman list booking yang baru
+>>>>>>> view2
 import 'package:pitstop/admin/data_master/customer/customer_page.dart';
 import 'admin/data_master/mechanic/mechanic_page.dart';
 import 'admin/data_master/mechanic/pages/mechanic_form.dart';
@@ -18,6 +22,10 @@ import 'package:pitstop/splash_screen.dart';
 // import 'package:pitstop/home/profile_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'home/bloc/user_bloc.dart';
+<<<<<<< HEAD
+=======
+import 'package:intl/date_symbol_data_local.dart';
+>>>>>>> view2
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +43,12 @@ Future<void> main() async {
     anonKey: dotenv.env['SUPABASE_KEY'] ?? '',
   );
 
+<<<<<<< HEAD
+=======
+  // Inisialisasi format tanggal lokal (sudah benar)
+  await initializeDateFormatting('id_ID', null);
+
+>>>>>>> view2
   runApp(const MyApp());
 }
 
@@ -55,7 +69,11 @@ final _router = GoRouter(
           const end = Offset.zero;
           const curve = Curves.ease;
           final tween =
+<<<<<<< HEAD
               Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+=======
+          Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+>>>>>>> view2
           final offsetAnimation = animation.drive(tween);
           return SlideTransition(position: offsetAnimation, child: child);
         },
@@ -71,7 +89,11 @@ final _router = GoRouter(
           const end = Offset.zero;
           const curve = Curves.ease;
           final tween =
+<<<<<<< HEAD
               Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+=======
+          Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+>>>>>>> view2
           final offsetAnimation = animation.drive(tween);
           return SlideTransition(position: offsetAnimation, child: child);
         },
@@ -84,7 +106,11 @@ final _router = GoRouter(
     GoRoute(
       path: '/history',
       builder: (context, state) => const Scaffold(
+<<<<<<< HEAD
         body: Center(child: Text('History Page')),
+=======
+        body: Center(child: Text('History Page')), // Placeholder
+>>>>>>> view2
       ),
     ),
     // GoRoute(
@@ -98,8 +124,12 @@ final _router = GoRouter(
         GoRoute(
           path: 'data-master',
           pageBuilder: (context, state) => const MaterialPage(
+<<<<<<< HEAD
               child:
                   AdminDashboardPage()), // Use pageBuilder instead of builder
+=======
+              child: AdminDashboardPage()),
+>>>>>>> view2
           routes: [
             GoRoute(
               path: 'data-customer',
@@ -121,15 +151,23 @@ final _router = GoRouter(
             ),
             GoRoute(
               path: 'data-jenis-servis',
+<<<<<<< HEAD
               builder: (context, state) =>
                   const ServicePage(), // Placeholder, should create DataJenisServisPage
+=======
+              builder: (context, state) => const ServicePage(),
+>>>>>>> view2
             ),
           ],
         ),
         GoRoute(
           path: 'data-booking',
+<<<<<<< HEAD
           builder: (context, state) =>
               const BookingPage(), // BookingPage harus dibuat di lib/admin/booking/pages/booking_page.dart
+=======
+          builder: (context, state) => const BookingPage(),
+>>>>>>> view2
         ),
       ],
     ),
@@ -145,14 +183,57 @@ class MyApp extends StatelessWidget {
     return BlocProvider(
       create: (context) => UserBloc(authRepository: authRepository),
       child: MaterialApp.router(
+<<<<<<< HEAD
         title: 'PitStop Admin',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
+=======
+        title: 'PitStop App',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.amber,
+              primary: Colors.amber[700],
+              secondary: Colors.blueGrey[600],
+            ),
+            useMaterial3: true,
+            appBarTheme: AppBarTheme(
+              // Di kode sebelumnya, backgroundColor: Theme.of(context).cardColor
+              // ini bisa menyebabkan error jika cardColor belum terdefinisi atau jika Anda ingin warna solid.
+              // Kita bisa set warna spesifik atau biarkan default Material 3.
+              // backgroundColor: Colors.white, // Contoh warna solid
+                elevation: 1,
+                titleTextStyle: TextStyle(
+                    color: Colors.grey[800], // Warna teks title AppBar
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500
+                ),
+                iconTheme: IconThemeData(color: Colors.grey[700]) // Warna ikon di AppBar
+            ),
+            // !!! PERBAIKAN DI SINI: CardTheme menjadi CardThemeData !!!
+            cardTheme: CardThemeData(
+                elevation: 2.5,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4)
+            ),
+            // !!! ---------------------------------------------------- !!!
+            elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)
+                )
+            )
+>>>>>>> view2
         ),
         routerConfig: _router,
       ),
     );
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> view2

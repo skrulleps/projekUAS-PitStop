@@ -71,6 +71,7 @@ class _EditMechanicPageState extends State<EditMechanicPage> {
     }
   }
 
+<<<<<<< HEAD
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
@@ -110,12 +111,23 @@ class _EditMechanicPageState extends State<EditMechanicPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
+=======
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edit Mekanik'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+>>>>>>> view2
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
               TextFormField(
                 controller: _fullNameController,
+<<<<<<< HEAD
                 decoration: _inputDecoration('Full Name'),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Full Name wajib diisi' : null,
@@ -134,11 +146,32 @@ class _EditMechanicPageState extends State<EditMechanicPage> {
                 decoration: _inputDecoration('Spesialisasi'),
               ),
               const SizedBox(height: 16),
+=======
+                decoration: const InputDecoration(labelText: 'Full Name'),
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Full Name wajib diisi'
+                    : null,
+              ),
+              TextFormField(
+                controller: _phoneController,
+                decoration: const InputDecoration(labelText: 'Phone'),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Phone wajib diisi' : null,
+              ),
+              TextFormField(
+                controller: _spesialisasiController,
+                decoration: const InputDecoration(labelText: 'Spesialisasi'),
+              ),
+>>>>>>> view2
               DropdownButtonFormField<String>(
                 value: _statusController.text.isNotEmpty
                     ? _statusController.text
                     : null,
+<<<<<<< HEAD
                 decoration: _inputDecoration('Status'),
+=======
+                decoration: const InputDecoration(labelText: 'Status'),
+>>>>>>> view2
                 items: const [
                   DropdownMenuItem(value: 'Active', child: Text('Active')),
                   DropdownMenuItem(value: 'Inactive', child: Text('Inactive')),
@@ -151,6 +184,7 @@ class _EditMechanicPageState extends State<EditMechanicPage> {
                     });
                   }
                 },
+<<<<<<< HEAD
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Status wajib dipilih' : null,
               ),
@@ -176,6 +210,17 @@ class _EditMechanicPageState extends State<EditMechanicPage> {
                   ),
                 ),
               )
+=======
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Status wajib dipilih'
+                    : null,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _save,
+                child: const Text('Simpan'),
+              ),
+>>>>>>> view2
             ],
           ),
         ),

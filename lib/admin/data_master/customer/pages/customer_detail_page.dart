@@ -16,6 +16,7 @@ class CustomerDetailPage extends StatelessWidget {
         : null;
 
     return Scaffold(
+<<<<<<< HEAD
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
@@ -25,6 +26,10 @@ class CustomerDetailPage extends StatelessWidget {
         backgroundColor: Colors.amber[700],
         iconTheme: const IconThemeData(color: Colors.black),
         elevation: 2,
+=======
+      appBar: AppBar(
+        title: Text(customer.fullName ?? 'Detail Customer'),
+>>>>>>> view2
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -33,25 +38,57 @@ class CustomerDetailPage extends StatelessWidget {
             Center(
               child: CircleAvatar(
                 radius: 60,
+<<<<<<< HEAD
                 backgroundColor: Colors.amber[100],
                 backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
                 child: photoUrl == null
                     ? const Icon(Icons.person, size: 60, color: Colors.black)
+=======
+                backgroundImage: photoUrl != null
+                    ? NetworkImage(photoUrl)
+                    : null,
+                child: photoUrl == null
+                    ? const Icon(Icons.person, size: 60)
+>>>>>>> view2
                     : null,
               ),
             ),
             const SizedBox(height: 20),
+<<<<<<< HEAD
 
             _buildInfoTile('Full Name', customer.fullName),
             _buildInfoTile('Phone', customer.phone),
             _buildInfoTile('Address', customer.address),
             _buildInfoTile('Created At', customer.createdAt?.toLocal().toString()),
             _buildInfoTile('Updated At', customer.updatedAt?.toLocal().toString()),
+=======
+            ListTile(
+              title: const Text('Full Name'),
+              subtitle: Text(customer.fullName ?? '-'),
+            ),
+            ListTile(
+              title: const Text('Phone'),
+              subtitle: Text(customer.phone ?? '-'),
+            ),
+            ListTile(
+              title: const Text('Address'),
+              subtitle: Text(customer.address ?? '-'),
+            ),
+            ListTile(
+              title: const Text('Created At'),
+              subtitle: Text(customer.createdAt?.toLocal().toString() ?? '-'),
+            ),
+            ListTile(
+              title: const Text('Updated At'),
+              subtitle: Text(customer.updatedAt?.toLocal().toString() ?? '-'),
+            ),
+>>>>>>> view2
           ],
         ),
       ),
     );
   }
+<<<<<<< HEAD
 
   Widget _buildInfoTile(String title, String? value) {
     return ListTile(
@@ -66,4 +103,6 @@ class CustomerDetailPage extends StatelessWidget {
       leading: const Icon(Icons.label, color: Colors.amber),
     );
   }
+=======
+>>>>>>> view2
 }

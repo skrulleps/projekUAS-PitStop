@@ -41,8 +41,16 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
 
     String? avatarPath;
     if (_photoBytes != null) {
+<<<<<<< HEAD
       final tempDir = await getTemporaryDirectory();
       final file = await File('${tempDir.path}/temp_avatar.jpg').writeAsBytes(_photoBytes!);
+=======
+      // Buat file sementara dari _photoBytes
+      final tempDir = await getTemporaryDirectory();
+      final file = await File('${tempDir.path}/temp_avatar.jpg').writeAsBytes(_photoBytes!);
+
+      // Upload foto ke bucket avatar
+>>>>>>> view2
       avatarPath = await CustomerService().uploadAvatar(file);
     }
 
@@ -75,6 +83,7 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
     }
   }
 
+<<<<<<< HEAD
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
@@ -99,6 +108,13 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
           style: TextStyle(color: Colors.amber),
         ),
         iconTheme: const IconThemeData(color: Colors.amber),
+=======
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tambah Customer'),
+>>>>>>> view2
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -112,6 +128,7 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
                   radius: 50,
                   backgroundImage:
                       _photoBytes != null ? MemoryImage(_photoBytes!) : null,
+<<<<<<< HEAD
                   backgroundColor: Colors.amber.shade100,
                   child: _photoBytes == null
                       ? const Icon(Icons.camera_alt, size: 50, color: Colors.black54)
@@ -122,13 +139,28 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
               TextFormField(
                 controller: _fullNameController,
                 decoration: _inputDecoration('Full Name'),
+=======
+                  child: _photoBytes == null
+                      ? const Icon(Icons.camera_alt, size: 50)
+                      : null,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _fullNameController,
+                decoration: const InputDecoration(labelText: 'Full Name'),
+>>>>>>> view2
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Full Name wajib diisi' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _phoneController,
+<<<<<<< HEAD
                 decoration: _inputDecoration('Phone'),
+=======
+                decoration: const InputDecoration(labelText: 'Phone'),
+>>>>>>> view2
                 keyboardType: TextInputType.phone,
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Phone wajib diisi' : null,
@@ -136,12 +168,17 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _addressController,
+<<<<<<< HEAD
                 decoration: _inputDecoration('Address'),
+=======
+                decoration: const InputDecoration(labelText: 'Address'),
+>>>>>>> view2
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Address wajib diisi' : null,
               ),
               const SizedBox(height: 24),
               ElevatedButton(
+<<<<<<< HEAD
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
                   foregroundColor: Colors.black,
@@ -151,6 +188,12 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
                 child: _isSaving
                     ? const CircularProgressIndicator(color: Colors.black)
                     : const Text('Simpan'),
+=======
+                onPressed: _isSaving ? null : _saveCustomer,
+                child: _isSaving
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Save'),
+>>>>>>> view2
               ),
             ],
           ),

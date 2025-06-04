@@ -64,29 +64,38 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
     if (success) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
+<<<<<<< HEAD
           SnackBar(
             content: Text(
               widget.service == null ? 'Service berhasil ditambahkan' : 'Service berhasil diubah',
             ),
             backgroundColor: Colors.amber[700],
           ),
+=======
+          SnackBar(content: Text(widget.service == null ? 'Service berhasil ditambahkan' : 'Service berhasil diubah')),
+>>>>>>> view2
         );
         Navigator.of(context).pop(true);
       }
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
+<<<<<<< HEAD
           SnackBar(
             content: Text(
               widget.service == null ? 'Gagal menambahkan service' : 'Gagal mengubah service',
             ),
             backgroundColor: Colors.redAccent,
           ),
+=======
+          SnackBar(content: Text(widget.service == null ? 'Gagal menambahkan service' : 'Gagal mengubah service')),
+>>>>>>> view2
         );
       }
     }
   }
 
+<<<<<<< HEAD
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
@@ -111,10 +120,13 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
     );
   }
 
+=======
+>>>>>>> view2
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.service != null;
     return Scaffold(
+<<<<<<< HEAD
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.black,
@@ -126,12 +138,20 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
+=======
+      appBar: AppBar(
+        title: Text(isEditing ? 'Edit Service' : 'Tambah Service'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+>>>>>>> view2
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
               TextFormField(
                 controller: _serviceNameController,
+<<<<<<< HEAD
                 decoration: _inputDecoration('Service Name'),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Service Name wajib diisi' : null,
@@ -182,6 +202,31 @@ class _ServiceFormPageState extends State<ServiceFormPage> {
                           ),
                         ),
                 ),
+=======
+                decoration: const InputDecoration(labelText: 'Service Name'),
+                validator: (value) => value == null || value.isEmpty ? 'Service Name wajib diisi' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(labelText: 'Description'),
+                maxLines: 3,
+                validator: (value) => value == null || value.isEmpty ? 'Description wajib diisi' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _priceController,
+                decoration: const InputDecoration(labelText: 'Price'),
+                validator: (value) => value == null || value.isEmpty ? 'Price wajib diisi' : null,
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _isSaving ? null : _saveService,
+                child: _isSaving
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Text(isEditing ? 'Update' : 'Save'),
+>>>>>>> view2
               ),
             ],
           ),
