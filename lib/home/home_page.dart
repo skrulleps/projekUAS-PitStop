@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'profile_page.dart';
+import 'package:pitstop/home/profile_page.dart';
+import 'package:pitstop/home/booking_page.dart';
+import 'package:pitstop/home/history_page.dart';
 import 'homepage_content.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,9 +16,9 @@ class _HomePageState extends State<HomePage> {
 
   static final List<Widget> _pages = <Widget>[
     const HomepageContent(),
-    const Center(child: Text('History')),
-    const Center(child: Text('Booking')),
-    const Center(child: Text('Profile'),),
+    const HistoryPage(),
+    const BookingPage(),
+    const ProfilePage(),
   ];
 
   void _onItemTapped(int index) {

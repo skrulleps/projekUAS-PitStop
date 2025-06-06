@@ -1,249 +1,164 @@
-// import 'dart:typed_data';
-// import 'dart:convert';
+import 'package:flutter/material.dart';
 
-// import 'package:flutter/material.dart';
-// import 'package:pitstop/features/auth/auth_repository.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'package:supabase_flutter/supabase_flutter.dart';
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({Key? key}) : super(key: key);
 
-// class ProfilePage extends StatefulWidget {
-//   const ProfilePage({Key? key}) : super(key: key);
+  // Helper widget untuk membuat setiap item menu di halaman profil
+  Widget _buildProfileMenuItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? iconColor, // Warna ikon bisa disesuaikan
+  }) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      elevation: 1.5, // Sedikit bayangan agar terlihat lebih menonjol
+      child: InkWell( // Membuat item bisa di-tap
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12.0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          child: Row(
+            children: [
+              Icon(icon, color: iconColor ?? Colors.grey.shade700, size: 24), // Ikon di kiri
+              const SizedBox(width: 16.0), // Spasi antara ikon dan teks
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios, size: 16.0, color: Colors.grey.shade500), // Ikon panah di kanan
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-//   @override
-//   State<ProfilePage> createState() => _ProfilePageState();
-// }
+  @override
+  Widget build(BuildContext context) {
+    final Color amberColor = Colors.amber.shade600; // Digunakan untuk ikon kamera
 
-// class _ProfilePageState extends State<ProfilePage> {
-//   Uint8List? _imageBytes;
-//   final ImagePicker _picker = ImagePicker();
+    return Scaffold(
+      backgroundColor: Colors.white, // Latar belakang utama halaman putih
+      body: SafeArea( // Memastikan konten tidak tertimpa status bar
+        child: SingleChildScrollView( // Agar konten bisa di-scroll jika panjang
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center, // Pusatkan elemen di tengah secara horizontal
+            children: <Widget>[
+              const SizedBox(height: 30.0), // Spasi dari atas
+              // Judul "My Profile"
+              const Text(
+                'My Profile',
+                style: TextStyle(
+                  fontSize: 28.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 30.0),
+              // Foto Profil
+              Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  CircleAvatar(
+                    radius: 60, // Ukuran avatar lebih besar
+                    backgroundColor: Colors.grey.shade200, // Warna latar jika tidak ada gambar
+                    child: const Icon(
+                      Icons.person, // Ikon placeholder
+                      size: 70,
+                      color: Colors.grey,
+                    ),
+                    // backgroundImage: NetworkImage('URL_FOTO_PROFIL_JIKA_ADA'), // Ganti dengan NetworkImage atau AssetImage jika ada gambar
+                  ),
+                  // Ikon kamera kecil untuk edit foto
+                  Positioned(
+                    right: 4,
+                    bottom: 4,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: amberColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      padding: const EdgeInsets.all(6.0), // Padding agar ikon tidak terlalu mepet
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              // Nama Pengguna (statis untuk desain)
+              const Text(
+                'Maria Sant',
+                style: TextStyle(
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 30.0), // Spasi sebelum daftar menu
 
-//   Future<void> _pickImage() async {
-//     try {
-//       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-//       if (image == null) return;
-
-//       final bytes = await image.readAsBytes();
-
-//       final supabase = Supabase.instance.client;
-//       final user = supabase.auth.currentUser;
-//       if (user == null) {
-//         if (mounted) {
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text('User not logged in')),
-//           );
-//         }
-//         return;
-//       }
-
-//       // Get user id from users table
-//       final userResponse =
-//           await supabase.from('users').select('id').eq('id', user.id).single();
-
-//       if (userResponse == null) {
-//         if (mounted) {
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text('User not found in users table')),
-//           );
-//         }
-//         return;
-//       }
-
-//       // Get users_id from profiles table
-//       final profileResponse = await supabase
-//           .from('profiles')
-//           .select('users_id')
-//           .eq('users_id', user.id)
-//           .single();
-
-//       if (profileResponse == null) {
-//         if (mounted) {
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text('Profile not found')),
-//           );
-//         }
-//         return;
-//       }
-
-//       // Check if users.id == profiles.users_id
-//       if (userResponse['id'] != profileResponse['users_id']) {
-//         if (mounted) {
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text('User ID mismatch')),
-//           );
-//         }
-//         return;
-//       }
-
-//       // Convert bytes to base64 string for bytea string storage
-//       final String base64String = base64Encode(bytes);
-
-//       final response = await supabase
-//           .from('profiles')
-//           .update({'photo': base64String})
-//           .eq('users_id', user.id)
-//           .select();
-
-//       if (response == null || (response is List && response.isEmpty)) {
-//         if (mounted) {
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text('Failed to update photo')),
-//           );
-//         }
-//       } else {
-//         if (mounted) {
-//           setState(() {
-//             _imageBytes = bytes;
-//           });
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text('Profile photo updated')),
-//           );
-//         }
-//       }
-//     } catch (e) {
-//       if (mounted) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text('Error picking image: $e')),
-//         );
-//       }
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final Color amberColor = Colors.amber.shade600;
-//     final Color iconBackground = Colors.amber.shade100;
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('My Profile'),
-//         backgroundColor: Colors.white,
-//         foregroundColor: Colors.black,
-//         elevation: 0,
-//       ),
-//       backgroundColor: Colors.white,
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           children: [
-//             const SizedBox(height: 20),
-//             Stack(
-//               alignment: Alignment.bottomRight,
-//               children: [
-//                 CircleAvatar(
-//                   radius: 50,
-//                   backgroundImage:
-//                       _imageBytes != null ? MemoryImage(_imageBytes!) : null,
-//                   child: _imageBytes == null
-//                       ? const Icon(Icons.person, size: 50)
-//                       : null,
-//                 ),
-//                 Container(
-//                   decoration: BoxDecoration(
-//                     color: amberColor,
-//                     shape: BoxShape.circle,
-//                   ),
-//                   child: IconButton(
-//                     icon: const Icon(Icons.camera_alt, color: Colors.white),
-//                     onPressed: _pickImage,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             const SizedBox(height: 12),
-//             const Text(
-//               'Maria Sant',
-//               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-//             ),
-//             const SizedBox(height: 24),
-//             Expanded(
-//               child: ListView(
-//                 children: [
-//                   _buildMenuItem(
-//                     context,
-//                     icon: Icons.person_outline,
-//                     label: 'Edit Profile',
-//                     onTap: () {
-//                       context.push('/edit-profile');
-//                     },
-//                     iconBackground: iconBackground,
-//                     iconColor: amberColor,
-//                   ),
-//                   _buildMenuItem(
-//                     context,
-//                     icon: Icons.bookmark_border,
-//                     label: 'Bookmark',
-//                     onTap: () {
-//                       // TODO: Navigate to bookmark
-//                     },
-//                     iconBackground: iconBackground,
-//                     iconColor: amberColor,
-//                   ),
-//                   _buildMenuItem(
-//                     context,
-//                     icon: Icons.lock_outline,
-//                     label: 'Change Password',
-//                     onTap: () {
-//                       // TODO: Navigate to change password
-//                     },
-//                     iconBackground: iconBackground,
-//                     iconColor: amberColor,
-//                   ),
-//                   _buildMenuItem(
-//                     context,
-//                     icon: Icons.privacy_tip_outlined,
-//                     label: 'Privacy Policy',
-//                     onTap: () {
-//                       // TODO: Show privacy policy
-//                     },
-//                     iconBackground: iconBackground,
-//                     iconColor: amberColor,
-//                   ),
-//                   _buildMenuItem(
-//                     context,
-//                     icon: Icons.logout,
-//                     label: 'Sign Out',
-//                     onTap: () async {
-//                       final authRepository = AuthRepository();
-//                       await authRepository.signOut();
-//                       if (context.mounted) {
-//                         context.go('/login');
-//                       }
-//                     },
-//                     iconBackground: iconBackground,
-//                     iconColor: amberColor,
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildMenuItem(BuildContext context,
-//       {required IconData icon,
-//       required String label,
-//       required VoidCallback onTap,
-//       required Color iconBackground,
-//       required Color iconColor}) {
-//     return Card(
-//       margin: const EdgeInsets.symmetric(vertical: 6),
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-//       child: ListTile(
-//         leading: Container(
-//           decoration: BoxDecoration(
-//             color: iconBackground,
-//             borderRadius: BorderRadius.circular(8),
-//           ),
-//           padding: const EdgeInsets.all(8),
-//           child: Icon(icon, color: iconColor),
-//         ),
-//         title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-//         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-//         onTap: onTap,
-//       ),
-//     );
-//   }
-// }
+              // Daftar Menu
+              _buildProfileMenuItem(
+                icon: Icons.person_outline,
+                title: 'Edit Profile',
+                iconColor: Colors.blue.shade700,
+                onTap: () {
+                  print('Edit Profile tapped (design only)');
+                  // Untuk navigasi nyata: context.push('/edit-profile');
+                },
+              ),
+              _buildProfileMenuItem(
+                icon: Icons.bookmark_border,
+                title: 'Bookmark',
+                iconColor: Colors.orange.shade700,
+                onTap: () {
+                  print('Bookmark tapped (design only)');
+                },
+              ),
+              _buildProfileMenuItem(
+                icon: Icons.lock_outline,
+                title: 'Change Password',
+                iconColor: Colors.red.shade600,
+                onTap: () {
+                  print('Change Password tapped (design only)');
+                },
+              ),
+              _buildProfileMenuItem(
+                icon: Icons.privacy_tip_outlined,
+                title: 'Privacy Policy',
+                iconColor: Colors.green.shade700,
+                onTap: () {
+                  print('Privacy Policy tapped (design only)');
+                },
+              ),
+              _buildProfileMenuItem(
+                icon: Icons.logout,
+                title: 'Sign Out',
+                iconColor: Colors.grey.shade800,
+                onTap: () {
+                  print('Sign Out tapped (design only)');
+                  // Untuk aksi nyata: panggil fungsi signOut dan navigasi
+                },
+              ),
+              const SizedBox(height: 30.0), // Spasi di bawah
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
