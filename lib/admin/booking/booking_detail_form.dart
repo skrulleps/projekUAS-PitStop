@@ -31,7 +31,7 @@ class _BookingDetailFormPageState extends State<BookingDetailFormPage> {
     try {
       final profile = widget.profiles.firstWhere(
           (p) => p['users_id'] == widget.booking.usersId,
-          orElse: () => {});
+          orElse: () => {'full_name': '-'});
       return profile['full_name'] ?? '-';
     } catch (e) {
       return '-';
@@ -42,7 +42,7 @@ class _BookingDetailFormPageState extends State<BookingDetailFormPage> {
     try {
       final mechanic = widget.mechanics.firstWhere(
           (m) => m['id'] == widget.booking.mechanicsId,
-          orElse: () => {});
+          orElse: () => {'full_name': '-'});
       return mechanic['full_name'] ?? '-';
     } catch (e) {
       return '-';

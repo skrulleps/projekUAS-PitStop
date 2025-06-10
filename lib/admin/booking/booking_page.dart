@@ -56,12 +56,30 @@ class _BookingPageState extends State<BookingPage> {
     final mechanicsData = await _mechanicService.getMechanics();
     final servicesData = await _serviceService.getServices();
 
+    // Debug prints to verify customers list and booking usersId values
+    if (customersData != null) {
+      print('DEBUG: Customers list:');
+      for (var c in customersData) {
+        print('Customer usersId: \${c.usersId}, fullName: \${c.fullName}');
+      }
+    } else {
+      print('DEBUG: Customers list is null');
+    }
+    if (bookings != null) {
+      print('DEBUG: Booking usersId values:');
+      for (var b in bookings) {
+        print('Booking usersId: \${b.usersId}');
+      }
+    } else {
+      print('DEBUG: Bookings list is null');
+    }
+
     // Group bookings by users_id to show only one ListTile per users_id
     final Map<String, BookingModel> groupedBookings = {};
     if (bookings != null) {
       for (var booking in bookings) {
         final key =
-            '${booking.bookingsDate?.toIso8601String().split("T")[0]}_${booking.bookingsTime}';
+            '\${booking.bookingsDate?.toIso8601String().split("T")[0]}_\${booking.bookingsTime}';
         if (!groupedBookings.containsKey(key)) {
           groupedBookings[key] = booking;
         }

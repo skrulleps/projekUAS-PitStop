@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pitstop/data/api/booking/booking_service.dart';
-import 'package:pitstop/data/api/account/account_service.dart';
+import 'package:pitstop/data/api/customer/customer_service.dart';
+import 'package:pitstop/data/api/booking/booking_service_extension.dart';
 import 'package:pitstop/data/api/mechanic/mechanic_service.dart';
-import 'package:pitstop/data/model/booking/booking_model.dart';
 import 'package:pitstop/data/model/account/user_account_model.dart';
+import 'package:pitstop/data/model/booking/booking_model.dart';
+import 'package:pitstop/data/model/customer/customer_model.dart';
 import 'package:pitstop/data/model/mechanic/mechanic_model.dart';
+import 'package:pitstop/data/model/service/service_model.dart';
 import 'package:pitstop/home/bloc/user_bloc.dart';
 import 'package:pitstop/home/bloc/user_state.dart';
+import 'package:pitstop/admin/booking/booking_detail_form.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BookingPage extends StatefulWidget {
@@ -20,12 +24,13 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final BookingService _bookingService = BookingService();
-  final AccountService _accountService = AccountService(Supabase.instance.client);
+  final CustomerService _customerService = CustomerService();
   final MechanicService _mechanicService = MechanicService();
 
   List<BookingModel> _bookings = [];
-  List<UserAccount> _users = [];
+  List<CustomerModel> _customers = [];
   List<MechanicModel> _mechanics = [];
+  Map<String, List<ServiceModel>> _servicesByGroup = {};
   bool _isLoading = true;
 
   @override
@@ -40,19 +45,48 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
       _isLoading = true;
     });
     final bookings = await _bookingService.getBookings();
-    final users = await _accountService.fetchUsers();
+    final customers = await _customerService.getCustomers();
     final mechanics = await _mechanicService.getMechanics();
+
+    Map<String, BookingModel> groupedBookings = {};
+    Map<String, List<ServiceModel>> servicesByGroup = {};
+
+    if (bookings != null) {
+      for (var booking in bookings) {
+        String bookingDate = booking.bookingsDate != null
+            ? booking.bookingsDate!.toIso8601String().split('T')[0]
+            : '-';
+        String bookingTime = booking.bookingsTime ?? '-';
+        String key = '$bookingDate|$bookingTime';
+
+        if (!groupedBookings.containsKey(key)) {
+          groupedBookings[key] = booking;
+
+          // Fetch services for this booking group
+          final services = await _bookingService.getServicesByUserIdAndDateTime(
+            booking.usersId ?? '',
+            booking.bookingsDate,
+            booking.bookingsTime,
+          );
+          if (services != null) {
+            servicesByGroup[key] = services;
+          }
+        }
+      }
+    }
+
     setState(() {
-      _bookings = bookings ?? [];
-      _users = users;
+      _bookings = groupedBookings.values.toList();
+      _customers = customers ?? [];
       _mechanics = mechanics ?? [];
+      _servicesByGroup = servicesByGroup;
       _isLoading = false;
     });
   }
 
   String _getUserName(String? userId) {
-    final user = _users.firstWhere((u) => u.id == userId, orElse: () => UserAccount(id: '', email: '', username: 'Unknown', role: ''));
-    return user.username ?? 'Unknown';
+    final user = _customers.firstWhere((u) => u.usersId == userId, orElse: () => CustomerModel(usersId: '', fullName: 'Unknown'));
+    return user.fullName ?? 'Unknown';
   }
 
   String _getMechanicName(String? mechanicId) {
@@ -93,50 +127,77 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
         ),
       );
     }
+
+    List<BookingModel> filteredBookings = bookings;
+
+    List<String> sortedKeys = filteredBookings.map((b) {
+      String bookingDate = b.bookingsDate != null
+          ? b.bookingsDate!.toLocal().toIso8601String().split('T')[0]
+          : '-';
+      String bookingTime = b.bookingsTime ?? '-';
+      return '$bookingDate|$bookingTime';
+    }).toSet().toList()
+      ..sort((a, b) => a.compareTo(b));
+
+    Color getStatusBgColor(String? status) {
+      switch (status?.toLowerCase()) {
+        case 'pending':
+          return Colors.amber.withOpacity(0.15);
+        case 'on progress':
+          return Colors.amber.withOpacity(0.25);
+        case 'confirmed':
+          return Colors.amber.shade100;
+        case 'done':
+          return Colors.black12;
+        case 'cancelled':
+          return Colors.red.withOpacity(0.2);
+        default:
+          return Colors.transparent;
+      }
+    }
+
+    Color getStatusTextColor(String? status) {
+      switch (status?.toLowerCase()) {
+        case 'pending':
+        case 'on progress':
+        case 'confirmed':
+          return Colors.amber.shade800;
+        case 'done':
+          return Colors.black87;
+        case 'cancelled':
+          return Colors.red.shade700;
+        default:
+          return Colors.black87;
+      }
+    }
+
     return ListView.builder(
-      itemCount: bookings.length,
+      itemCount: sortedKeys.length,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       itemBuilder: (context, index) {
-        final booking = bookings[index];
+        String key = sortedKeys[index];
+        BookingModel booking = filteredBookings.firstWhere((b) {
+          String bookingDate = b.bookingsDate != null
+              ? b.bookingsDate!.toLocal().toIso8601String().split('T')[0]
+              : '-';
+          String bookingTime = b.bookingsTime ?? '-';
+          return key == '$bookingDate|$bookingTime';
+        });
 
-        String userFullName = _getUserName(booking.usersId);
-        String mechanicFullName = _getMechanicName(booking.mechanicsId);
-        String bookingDate = booking.bookingsDate != null
-            ? booking.bookingsDate!.toLocal().toIso8601String().split('T')[0]
-            : '-';
-        String bookingTime = booking.bookingsTime ?? '-';
+        String bookingDate = key.split('|')[0];
+        String bookingTime = key.split('|')[1];
 
-        Color getStatusBgColor(String? status) {
-          switch (status?.toLowerCase()) {
-            case 'pending':
-              return Colors.amber.withOpacity(0.15);
-            case 'on progress':
-              return Colors.amber.withOpacity(0.25);
-            case 'confirmed':
-              return Colors.amber.shade100;
-            case 'done':
-              return Colors.black12;
-            case 'cancelled':
-              return Colors.red.withOpacity(0.2);
-            default:
-              return Colors.transparent;
-          }
-        }
+        String userFullName = _customers.firstWhere(
+          (u) => u.usersId == booking.usersId,
+          orElse: () => CustomerModel(usersId: '', fullName: 'Unknown'),
+        ).fullName ?? 'Unknown';
 
-        Color getStatusTextColor(String? status) {
-          switch (status?.toLowerCase()) {
-            case 'pending':
-            case 'on progress':
-            case 'confirmed':
-              return Colors.amber.shade800;
-            case 'done':
-              return Colors.black87;
-            case 'cancelled':
-              return Colors.red.shade700;
-            default:
-              return Colors.black87;
-          }
-        }
+        String mechanicFullName = _mechanics.firstWhere(
+          (m) => m.id == booking.mechanicsId,
+          orElse: () => MechanicModel(id: '', fullName: 'Unknown'),
+        ).fullName ?? 'Unknown';
+
+        List<ServiceModel> services = _servicesByGroup[key] ?? [];
 
         return Card(
           shape: RoundedRectangleBorder(
@@ -145,8 +206,7 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
           elevation: 3,
           margin: const EdgeInsets.symmetric(vertical: 6),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-                vertical: 8, horizontal: 16),
+            contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             title: Text(
               userFullName,
               overflow: TextOverflow.ellipsis,
@@ -168,8 +228,7 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today,
-                          size: 16, color: Colors.black54),
+                      const Icon(Icons.calendar_today, size: 16, color: Colors.black54),
                       const SizedBox(width: 6),
                       Text(
                         bookingDate,
@@ -180,8 +239,7 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.access_time,
-                          size: 16, color: Colors.black54),
+                      const Icon(Icons.access_time, size: 16, color: Colors.black54),
                       const SizedBox(width: 6),
                       Text(
                         bookingTime,
@@ -192,12 +250,10 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.info_outline,
-                          size: 16, color: Colors.black54),
+                      const Icon(Icons.info_outline, size: 16, color: Colors.black54),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: getStatusBgColor(booking.status),
                           borderRadius: BorderRadius.circular(6),
@@ -217,7 +273,32 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
               ),
             ),
             onTap: () async {
-              // TODO: Implement detail view navigation if needed
+              // Debug prints for usersId and mechanicsId
+              print('Booking usersId: ${booking.usersId}');
+              print('Booking mechanicsId: ${booking.mechanicsId}');
+
+              final profilesList = _customers.map((c) => {
+                'users_id': c.usersId,
+                'full_name': c.fullName,
+              }).toList();
+              final mechanicsList = _mechanics.map((m) => {
+                'id': m.id,
+                'full_name': m.fullName,
+              }).toList();
+
+              print('Profiles list passed: $profilesList');
+              print('Mechanics list passed: $mechanicsList');
+
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => BookingDetailFormPage(
+                    booking: booking,
+                    services: services,
+                    profiles: profilesList,
+                    mechanics: mechanicsList,
+                  ),
+                ),
+              );
             },
           ),
         );
