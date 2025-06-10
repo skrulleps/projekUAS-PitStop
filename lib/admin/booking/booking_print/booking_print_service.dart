@@ -5,7 +5,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:pitstop/utils/pdf_utils.dart';
+import 'package:pitstop/data/utils/pdf_utils.dart';
 
 class BookingPrintService {
   Future<void> printBookings(

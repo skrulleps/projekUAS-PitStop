@@ -140,6 +140,7 @@ class CustomerService {
           })
           .eq('users_id', userId).select();
 
+        // ignore: unnecessary_null_comparison
         if (updateResponse != null) {
           throw Exception(
               'Update avatar_path error: ${updateResponse}');

@@ -163,6 +163,24 @@ class BookingService {
     }
   }
 
+  Future<List<BookingModel>?> getBookingsByDate(DateTime date) async {
+    try {
+      final dateStr = date.toIso8601String().split('T')[0];
+      final response = await _client
+          .from('booking')
+          .select()
+          .eq('bookings_date', dateStr)
+          .order('bookings_time', ascending: true);
+      if (response == null) {
+        return null;
+      }
+      return (response as List).map((e) => BookingModel.fromMap(e)).toList();
+    } catch (e) {
+      print('Exception getting bookings by date: $e');
+      return null;
+    }
+  }
+
   Future<bool> deleteBooking(String id) async {
     try {
       await _client.from('booking').delete().eq('id', id);

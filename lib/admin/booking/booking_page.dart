@@ -9,7 +9,7 @@ import '../../data/api/booking/booking_service.dart';
 import '../../data/api/booking/booking_service_extension.dart';
 import 'booking_print/booking_print_service.dart';
 import 'package:pitstop/data/api/customer/customer_service.dart';
-import 'package:pitstop/admin/data_master/mechanic/service/mechanic_service.dart';
+import 'package:pitstop/data/api/mechanic/mechanic_service.dart';
 import 'package:pitstop/admin/data_master/service/service_service.dart';
 
 class BookingPage extends StatefulWidget {

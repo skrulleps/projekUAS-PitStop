@@ -1,5 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../../data/model/mechanic/mechanic_model.dart';
+import 'package:pitstop/data/model/mechanic/mechanic_model.dart';
 
 class MechanicService {
   final SupabaseClient _client = Supabase.instance.client;
@@ -23,7 +23,9 @@ class MechanicService {
 
       print('Fetched mechanics data: $response');
 
+      // ignore: unnecessary_null_comparison
       if (response != null) {
+        // ignore: unnecessary_cast
         return response.map((item) => MechanicModel.fromMap(item as Map<String, dynamic>)).toList();
       }
 
@@ -58,6 +60,7 @@ class MechanicService {
           .eq('id', id);
 
       print('Deleted mechanic with id: $id');
+      print('Response: $response');
       return true;
     } catch (e) {
       print('Exception deleting mechanic: $e');

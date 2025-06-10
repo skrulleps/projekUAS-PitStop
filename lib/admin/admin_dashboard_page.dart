@@ -5,7 +5,7 @@ import 'package:pitstop/data/model/booking/booking_model.dart';
 import 'package:pitstop/data/model/customer/customer_model.dart';
 import 'package:pitstop/data/model/mechanic/mechanic_model.dart';
 import 'package:pitstop/data/model/service/service_model.dart';
-import 'package:pitstop/utils/admin_utils.dart';
+import 'package:pitstop/data/utils/admin_utils.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({Key? key}) : super(key: key);
@@ -58,28 +58,56 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('EEEE, MMM d, yyyy');
-    final nextDays = _adminUtils.getNext6DaysExcludingFriday();
+    final nextDays = _adminUtils.getNext5DaysExcludingFriday();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
+        backgroundColor: Colors.amber,
+        foregroundColor: Colors.black,
       ),
       drawer: const AdminSidebar(),
       body: RefreshIndicator(
         onRefresh: _fetchDataForToday,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Bookings for Today (${dateFormat.format(DateTime.now())})',
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Bookings for Today',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        dateFormat.format(DateTime.now()),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 _isLoading
-                    ? const CircularProgressIndicator()
+                    ? const Center(child: CircularProgressIndicator())
                     : SizedBox(
                         height: 200,
                         child: Scrollbar(
@@ -88,15 +116,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             shrinkWrap: true,
                             children: [
                               FutureBuilder<Map<String, List<ServiceModel>>>(
-                                future: _adminUtils.fetchServicesForBookings(_bookingsToday),
+                                future: _adminUtils.fetchServicesForBookings(_bookingsToday, _servicesMap),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState == ConnectionState.waiting) {
                                     return const Center(child: CircularProgressIndicator());
                                   } else if (snapshot.hasError) {
-                                    return Center(child: Text('Error: ${snapshot.error}'));
+                                    return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.red)));
                                   } else {
                                     final servicesByBookingId = snapshot.data ?? {};
-                                    return _adminUtils.buildBookingListForDate(
+                                    return _adminUtils.buildGroupedBookingListForDate(
                                       _bookingsToday,
                                       _customers,
                                       _mechanics,
@@ -110,31 +138,82 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           ),
                         ),
                       ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 Text(
-                  'Bookings for Next 6 Days (excluding Friday)',
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  'Bookings for Next 5 Days (excluding Friday)',
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 SizedBox(
-                  height: 300,
+                  height: 400,
                   child: ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
+                    physics: const AlwaysScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: nextDays.length,
                     itemBuilder: (context, index) {
                       final day = nextDays[index];
-                      return ExpansionTile(
-                        title: Text(dateFormat.format(day)),
-                        children: [
-                          _adminUtils.buildBookingListForDate(
-                            [],
-                            _customers,
-                            _mechanics,
-                            _servicesMap,
-                            {},
-                          ),
-                        ],
+                      return FutureBuilder<Map<String, dynamic>>(
+                        future: _adminUtils.fetchDataForDate(day),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.red)));
+                          } else {
+                            final data = snapshot.data ?? {};
+                            final bookings = data['bookings'] as List<BookingModel>? ?? [];
+                            final customers = data['customers'] as List<CustomerModel>? ?? [];
+                            final mechanics = data['mechanics'] as List<MechanicModel>? ?? [];
+                            final servicesMap = data['servicesMap'] as Map<String, ServiceModel>? ?? {};
+
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              elevation: 4,
+                              child: ExpansionTile(
+                                iconColor: Colors.amber,
+                                textColor: Colors.black,
+                                title: Text(
+                                  dateFormat.format(day),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                                ),
+                                children: [
+                                  SizedBox(
+                                    height: 300,
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: _adminUtils.buildGroupedBookingListForDateByCustomerDateTime(
+                                        bookings,
+                                        customers,
+                                        mechanics,
+                                        servicesMap,
+                                        {},
+                                      ).length,
+                                      itemBuilder: (context, index) {
+                                        final cards = _adminUtils.buildGroupedBookingListForDateByCustomerDateTime(
+                                          bookings,
+                                          customers,
+                                          mechanics,
+                                          servicesMap,
+                                          {},
+                                        );
+                                        return Container(
+                                          width: 250,
+                                          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                          child: cards[index],
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                        },
                       );
                     },
                   ),

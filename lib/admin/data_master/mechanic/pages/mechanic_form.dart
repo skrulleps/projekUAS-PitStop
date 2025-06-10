@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pitstop/admin/data_master/mechanic/service/mechanic_service.dart';
+import 'package:pitstop/data/api/mechanic/mechanic_service.dart';
 
 class MechanicFormPage extends StatefulWidget {
   const MechanicFormPage({Key? key}) : super(key: key);

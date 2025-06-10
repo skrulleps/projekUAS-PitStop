@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../data/model/mechanic/mechanic_model.dart';
-import 'package:pitstop/admin/data_master/mechanic/service/mechanic_service.dart';
+import 'package:pitstop/data/api/mechanic/mechanic_service.dart';
 
 class EditMechanicPage extends StatefulWidget {
   final MechanicModel mechanic;

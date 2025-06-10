@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pitstop/admin/data_master/mechanic/service/mechanic_service.dart';
+import 'package:pitstop/data/api/mechanic/mechanic_service.dart';
 import 'package:pitstop/admin/data_master/mechanic/state/mechanic_state.dart';
 import 'package:pitstop/admin/data_master/mechanic/pages/edit_mechanic_page.dart';
 import 'package:pitstop/admin/data_master/mechanic/pages/mechanic_form.dart';
