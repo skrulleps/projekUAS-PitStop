@@ -1,8 +1,22 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:pitstop/auth/auth_repository.dart';
+import 'package:pitstop/data/api/customer/customer_service.dart';
+import 'package:pitstop/data/model/customer/customer_model.dart';
+import 'package:pitstop/home/bloc/user_bloc.dart';
+import 'package:pitstop/home/bloc/user_state.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
   // Helper widget untuk membuat setiap item menu di halaman profil
   Widget _buildProfileMenuItem({
     required IconData icon,
@@ -65,50 +79,130 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 30.0),
-              // Foto Profil
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  CircleAvatar(
-                    radius: 60, // Ukuran avatar lebih besar
-                    backgroundColor: Colors.grey.shade200, // Warna latar jika tidak ada gambar
-                    child: const Icon(
-                      Icons.person, // Ikon placeholder
-                      size: 70,
-                      color: Colors.grey,
-                    ),
-                    // backgroundImage: NetworkImage('URL_FOTO_PROFIL_JIKA_ADA'), // Ganti dengan NetworkImage atau AssetImage jika ada gambar
-                  ),
-                  // Ikon kamera kecil untuk edit foto
-                  Positioned(
-                    right: 4,
-                    bottom: 4,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: amberColor,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+              BlocBuilder<UserBloc, UserState>(
+                builder: (context, state) {
+                  if (state is UserLoadSuccess) {
+                    final userId = state.userId;
+                    return FutureBuilder<CustomerModel?>(
+                      future: CustomerService().getCustomerByUserId(userId ?? ''),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return const Text(
+                            'Error loading profile',
+                            style: TextStyle(
+                              fontSize: 22.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          );
+                        } else if (snapshot.hasData) {
+                          final customer = snapshot.data;
+                          final fullName = customer?.fullName ?? 'User';
+                          final photoPath = customer?.photos;
+                          final photoUrl = photoPath != null && photoPath.isNotEmpty
+                              ? CustomerService().getAvatarUrl(photoPath)
+                              : null;
+                          return Column(
+                            children: [
+                              Stack(
+                                alignment: Alignment.bottomRight,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 60,
+                                    backgroundColor: Colors.grey.shade200,
+                                    backgroundImage: photoUrl != null
+                                        ? NetworkImage(photoUrl)
+                                        : null,
+                                    child: photoUrl == null
+                                        ? const Icon(
+                                            Icons.person,
+                                            size: 70,
+                                            color: Colors.grey,
+                                          )
+                                        : null,
+                                  ),
+                                  Positioned(
+                                    right: 4,
+                                    bottom: 4,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: amberColor,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: Colors.white, width: 2),
+                                      ),
+                                      padding: const EdgeInsets.all(6.0),
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          // Request permission and pick image from gallery
+                                          final ImagePicker picker = ImagePicker();
+                                          final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                                          if (image != null) {
+                                            final file = File(image.path);
+                                            final userBloc = BlocProvider.of<UserBloc>(context);
+                                            final authRepository = AuthRepository();
+                                            if (userBloc.state is UserLoadSuccess) {
+                                              final userId = (userBloc.state as UserLoadSuccess).userId;
+                                              if (userId != null) {
+                                                final customerService = CustomerService();
+                                                final success = await customerService.uploadAvatar(file, userId: userId);
+                                                if (success != null) {
+                                                  // Refresh UI by triggering a state update or reload customer data
+                                                  setState(() {});
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        child: const Icon(
+                                          Icons.camera_alt,
+                                          color: Colors.white,
+                                          size: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              const SizedBox(height: 16.0),
+                              Text(
+                                fullName,
+                                style: const TextStyle(
+                                  fontSize: 22.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return const Text(
+                            'User',
+                            style: TextStyle(
+                              fontSize: 22.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  } else {
+                    return const Text(
+                      'User',
+                      style: TextStyle(
+                        fontSize: 22.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
-                      padding: const EdgeInsets.all(6.0), // Padding agar ikon tidak terlalu mepet
-                      child: const Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
-                  )
-                ],
+                    );
+                  }
+                },
               ),
               const SizedBox(height: 16.0),
               // Nama Pengguna (statis untuk desain)
-              const Text(
-                'Maria Sant',
-                style: TextStyle(
-                  fontSize: 22.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
+              // Removed redundant full_name display
               const SizedBox(height: 30.0), // Spasi sebelum daftar menu
 
               // Daftar Menu
@@ -149,9 +243,20 @@ class ProfilePage extends StatelessWidget {
                 icon: Icons.logout,
                 title: 'Sign Out',
                 iconColor: Colors.grey.shade800,
-                onTap: () {
-                  print('Sign Out tapped (design only)');
-                  // Untuk aksi nyata: panggil fungsi signOut dan navigasi
+                onTap: () async {
+                  final userBloc = BlocProvider.of<UserBloc>(context);
+                  final authRepository = AuthRepository();
+                  try {
+                    await authRepository.signOut(userBloc);
+                    if (mounted) {
+                      // Navigate to login page without popping context to avoid black screen
+                      context.go('/login');
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Logout failed: \$e')),
+                    );
+                  }
                 },
               ),
               const SizedBox(height: 30.0), // Spasi di bawah

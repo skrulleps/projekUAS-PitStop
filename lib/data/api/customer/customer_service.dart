@@ -41,6 +41,25 @@ class CustomerService {
     }
   }
 
+  Future<CustomerModel?> getCustomerByUserId(String userId) async {
+    try {
+      final response = await _client
+          .from('profiles')
+          .select()
+          .eq('users_id', userId)
+          .single();
+
+      if (response != null) {
+        return CustomerModel.fromMap(response as Map<String, dynamic>);
+      }
+
+      return null;
+    } catch (e) {
+      print('Exception fetching customer by userId: $e');
+      return null;
+    }
+  }
+
   Future<bool> updateCustomer(
       String id, Map<String, dynamic> updateData) async {
     try {
