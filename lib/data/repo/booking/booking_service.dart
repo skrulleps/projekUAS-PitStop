@@ -1,8 +1,8 @@
-import 'package:pitstop/admin/data_master/service/model/service_model.dart';
+import 'package:pitstop/data/model/service/service_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
-import 'package:pitstop/admin/booking/model/booking_model.dart';
-import 'package:pitstop/admin/booking/model/booking_service_model.dart';
+import 'package:pitstop/data/model/booking/booking_model.dart';
+import 'package:pitstop/data/model/booking/booking_service_model.dart';
 
 
 class BookingService {

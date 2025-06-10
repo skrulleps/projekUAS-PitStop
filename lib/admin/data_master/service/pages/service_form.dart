@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../model/service_model.dart';
+import '../../../../data/model/service/service_model.dart';
 import 'package:pitstop/admin/data_master/service/service_service.dart';
 
 class ServiceFormPage extends StatefulWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../model/customer_model.dart';
+import '../../../../data/model/customer/customer_model.dart';
 import '../service/customer_service.dart';
 
 class CustomerDetailPage extends StatelessWidget {

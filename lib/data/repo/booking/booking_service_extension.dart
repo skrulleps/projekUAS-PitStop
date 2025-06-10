@@ -1,5 +1,5 @@
 import 'booking_service.dart';
-import 'package:pitstop/admin/data_master/service/model/service_model.dart';
+import 'package:pitstop/data/model/service/service_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 extension BookingServiceExtension on BookingService {

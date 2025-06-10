@@ -1,8 +1,8 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:pitstop/admin/booking/model/booking_model.dart';
-import 'package:pitstop/admin/data_master/service/model/service_model.dart';
+import 'package:pitstop/data/model/booking/booking_model.dart';
+import 'package:pitstop/data/model/service/service_model.dart';
 
 class BookingDetailPrintService {
   Future<void> printBookingDetail({

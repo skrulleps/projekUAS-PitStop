@@ -1,5 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../model/mechanic_model.dart';
+import '../../../../data/model/mechanic/mechanic_model.dart';
 
 class MechanicService {
   final SupabaseClient _client = Supabase.instance.client;

@@ -153,17 +153,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: BlocConsumer<RegisterBloc, RegisterState>(
                     listener: (context, state) {
                       if (state.isFailure) {
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //   const SnackBar(content: Text('Register berhasil!')),
-                        // );
-                        // context.go('/login');
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(state.errorMessage)),
                         );
-                      } else if (state.isFailure) {
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //   const SnackBar(content: Text('Register gagal. Periksa kembali data Anda.')),
-                        // );
+                      } else if (state.isSuccess) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Register berhasil!')),
                         );

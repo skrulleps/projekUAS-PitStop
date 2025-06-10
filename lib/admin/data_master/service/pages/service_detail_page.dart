@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../model/service_model.dart';
+import '../../../../data/model/service/service_model.dart';
 
 class ServiceDetailPage extends StatelessWidget {
   final ServiceModel service;

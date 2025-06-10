@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../model/customer_model.dart';
+import '../../../../data/model/customer/customer_model.dart';
 
 class CustomerService {
   final SupabaseClient _client = Supabase.instance.client;

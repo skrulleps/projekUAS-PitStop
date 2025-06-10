@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../admin_sidebar.dart';
-import 'user_account_model.dart';
-import 'user_account_detail_page.dart';
-import 'tambah_akun_page.dart';
+import 'package:pitstop/data/repo/account/account_service.dart';
+import 'package:pitstop/admin/data_master/account/tambah_akun_page.dart';
+import 'package:pitstop/admin/data_master/account/user_account_detail_page.dart';
+import 'package:pitstop/data/model/account/user_account_model.dart';
+import 'package:pitstop/admin/admin_sidebar.dart';
 
 class DataAkunPage extends StatefulWidget {
-  const DataAkunPage({Key? key}) : super(key: key);
+  const DataAkunPage({super.key});
 
   @override
   State<DataAkunPage> createState() => _DataAkunPageState();
@@ -14,27 +15,19 @@ class DataAkunPage extends StatefulWidget {
 
 class _DataAkunPageState extends State<DataAkunPage> {
   final SupabaseClient supabase = Supabase.instance.client;
+  late final AccountService accountService;
   late Future<List<UserAccount>> _usersFuture;
 
   @override
   void initState() {
     super.initState();
-    _usersFuture = fetchUsers();
-  }
-
-  Future<List<UserAccount>> fetchUsers() async {
-    final response =
-        await supabase.from('users').select('id, email, username, role');
-    if (response == null) {
-      throw Exception('Failed to load users: response is null');
-    }
-    final List data = response as List;
-    return data.map((e) => UserAccount.fromMap(e)).toList();
+    accountService = AccountService(supabase);
+    _usersFuture = accountService.fetchUsers();
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      _usersFuture = fetchUsers();
+      _usersFuture = accountService.fetchUsers();
     });
     await _usersFuture;
   }

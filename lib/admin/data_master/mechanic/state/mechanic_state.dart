@@ -1,4 +1,4 @@
-import '../model/mechanic_model.dart';
+import '../../../../data/model/mechanic/mechanic_model.dart';
 
 class MechanicState {
   final List<MechanicModel> mechanics;

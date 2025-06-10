@@ -1,6 +1,6 @@
 import 'package:pdf/widgets.dart' as pw;
-import 'package:pitstop/admin/data_master/service/model/service_model.dart';
-import '../model/booking_model.dart';
+import 'package:pitstop/data/model/service/service_model.dart';
+import '../../../data/model/booking/booking_model.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:intl/intl.dart';

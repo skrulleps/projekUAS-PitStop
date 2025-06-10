@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'user_account_model.dart';
+import '../../../data/model/account/user_account_model.dart';
 
 class UserAccountDetailPage extends StatefulWidget {
   final UserAccount user;
@@ -39,6 +39,7 @@ class _UserAccountDetailPageState extends State<UserAccountDetailPage> {
     final response =
         await supabase.from('users').select().eq('id', widget.user.id).single();
 
+    // ignore: unnecessary_null_comparison
     if (response != null) {
       setState(() {
         usernameController.text =

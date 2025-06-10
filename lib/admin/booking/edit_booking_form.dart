@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'model/booking_model.dart';
-import 'model/booking_service_model.dart';
-import 'booking_service/booking_service.dart';
-import 'package:pitstop/admin/data_master/service/model/service_model.dart';
-import 'package:pitstop/admin/booking/booking_service/booking_service_extension.dart';
+import '../../data/model/booking/booking_model.dart';
+import '../../data/model/booking/booking_service_model.dart';
+import '../../data/repo/booking/booking_service.dart';
+import 'package:pitstop/data/model/service/service_model.dart';
+import 'package:pitstop/data/repo/booking/booking_service_extension.dart';
 import 'package:pitstop/admin/data_master/service/service_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

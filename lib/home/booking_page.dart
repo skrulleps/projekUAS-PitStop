@@ -238,6 +238,13 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
           _buildBookingList(_getFilteredBookings('Canceled')),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // TODO: Implement add booking action
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.amber.shade800,
+      ),
     );
   }
 }

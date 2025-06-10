@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pitstop/admin/data_master/customer/service/customer_service.dart';
-import 'package:pitstop/admin/data_master/customer/model/customer_model.dart';
+import 'package:pitstop/data/model/customer/customer_model.dart';
 import 'package:pitstop/admin/data_master/customer/pages/edit_customer_page.dart';
 import 'package:pitstop/admin/data_master/customer/pages/customer_form.dart';
 import 'package:pitstop/admin/data_master/customer/pages/customer_detail_page.dart';

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'admin_sidebar.dart';
 import 'package:intl/intl.dart';
-import 'package:pitstop/admin/booking/model/booking_model.dart';
-import 'package:pitstop/admin/data_master/customer/model/customer_model.dart';
-import 'package:pitstop/admin/data_master/mechanic/model/mechanic_model.dart';
-import 'package:pitstop/admin/data_master/service/model/service_model.dart';
+import 'package:pitstop/data/model/booking/booking_model.dart';
+import 'package:pitstop/data/model/customer/customer_model.dart';
+import 'package:pitstop/data/model/mechanic/mechanic_model.dart';
+import 'package:pitstop/data/model/service/service_model.dart';
 import 'package:pitstop/utils/admin_utils.dart';
 
 class AdminDashboardPage extends StatefulWidget {

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
-import '../model/customer_model.dart';
+import '../../../../data/model/customer/customer_model.dart';
 import '../service/customer_service.dart';
 
 class EditCustomerPage extends StatefulWidget {
