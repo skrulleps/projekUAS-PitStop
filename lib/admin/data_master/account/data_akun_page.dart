@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:pitstop/data/repo/account/account_service.dart';
+import 'package:pitstop/data/api/account/account_service.dart';
 import 'package:pitstop/admin/data_master/account/tambah_akun_page.dart';
 import 'package:pitstop/admin/data_master/account/user_account_detail_page.dart';
 import 'package:pitstop/data/model/account/user_account_model.dart';

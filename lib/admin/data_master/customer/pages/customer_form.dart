@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pitstop/admin/data_master/customer/service/customer_service.dart';
+import 'package:pitstop/data/api/customer/customer_service.dart';
 
 class CustomerFormPage extends StatefulWidget {
   const CustomerFormPage({Key? key}) : super(key: key);

@@ -91,6 +91,7 @@ class _UserAccountDetailPageState extends State<UserAccountDetailPage> {
           .select()
           .single();
 
+      // ignore: unnecessary_null_comparison
       if (response != null && response['email'] != null) {
         setState(() {
           isEditing = false;

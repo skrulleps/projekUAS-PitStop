@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../../data/model/customer/customer_model.dart';
-import '../service/customer_service.dart';
+import 'package:pitstop/data/model/customer/customer_model.dart';
+import '../../../../data/api/customer/customer_service.dart';
 
 class EditCustomerPage extends StatefulWidget {
   final CustomerModel customer;
@@ -61,6 +61,7 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
 
   void _save() async {
     if (_formKey.currentState!.validate()) {
+      // ignore: unused_local_variable
       String? avatarPath;
       if (_photoFile != null) {
         avatarPath = await CustomerService().uploadAvatar(_photoFile!, userId: widget.customer.usersId);

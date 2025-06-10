@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../data/model/customer/customer_model.dart';
-import '../service/customer_service.dart';
+import '../../../../data/api/customer/customer_service.dart';
 
 class CustomerDetailPage extends StatelessWidget {
   final CustomerModel customer;

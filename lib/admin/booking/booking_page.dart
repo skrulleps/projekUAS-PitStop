@@ -5,10 +5,10 @@ import 'package:pitstop/admin/booking/edit_booking_form.dart';
 import 'package:pitstop/admin/booking/booking_detail_form.dart';
 import 'package:pitstop/data/model/service/service_model.dart';
 import '../../data/model/booking/booking_model.dart';
-import '../../data/repo/booking/booking_service.dart';
-import '../../data/repo/booking/booking_service_extension.dart';
+import '../../data/api/booking/booking_service.dart';
+import '../../data/api/booking/booking_service_extension.dart';
 import 'booking_print/booking_print_service.dart';
-import 'package:pitstop/admin/data_master/customer/service/customer_service.dart';
+import 'package:pitstop/data/api/customer/customer_service.dart';
 import 'package:pitstop/admin/data_master/mechanic/service/mechanic_service.dart';
 import 'package:pitstop/admin/data_master/service/service_service.dart';
 

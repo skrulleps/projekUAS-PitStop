@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pitstop/data/model/booking/booking_model.dart';
-import 'package:pitstop/data/repo/booking/booking_service.dart';
+import 'package:pitstop/data/api/booking/booking_service.dart';
 import 'package:pitstop/data/model/customer/customer_model.dart';
-import 'package:pitstop/admin/data_master/customer/service/customer_service.dart';
+import 'package:pitstop/data/api/customer/customer_service.dart';
 import 'package:pitstop/data/model/mechanic/mechanic_model.dart';
 import 'package:pitstop/admin/data_master/mechanic/service/mechanic_service.dart';
 import 'package:pitstop/data/model/service/service_model.dart';
