@@ -24,6 +24,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final userBloc = context.read<UserBloc>().state;
     if (userBloc is UserLoadSuccess) {
       final userId = userBloc.userId;
+      // ignore: unnecessary_null_comparison
       if (userId != null && userId.isNotEmpty) {
         setState(() {
           _customerFuture = CustomerService().getCustomerByUserId(userId);
@@ -99,6 +100,7 @@ class _ProfilePageState extends State<ProfilePage> {
               final userBloc = BlocProvider.of<UserBloc>(context);
               if (userBloc.state is UserLoadSuccess) {
                 final userId = (userBloc.state as UserLoadSuccess).userId;
+                // ignore: unnecessary_null_comparison
                 if (userId != null && userId.isNotEmpty) {
                   setState(() {
                     _customerFuture =
@@ -128,6 +130,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   BlocBuilder<UserBloc, UserState>(
                     builder: (context, state) {
                       if (state is UserLoadSuccess) {
+                        // ignore: unused_local_variable
                         final userId = state.userId;
                         return FutureBuilder<CustomerModel?>(
                           future: _customerFuture,
@@ -199,6 +202,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 final userBloc =
                                                     BlocProvider.of<UserBloc>(
                                                         context);
+                                                // ignore: unused_local_variable
                                                 final authRepository =
                                                     AuthRepository();
                                                 if (userBloc.state
@@ -206,6 +210,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   final userId = (userBloc.state
                                                           as UserLoadSuccess)
                                                       .userId;
+                                                  // ignore: unnecessary_null_comparison
                                                   if (userId != null) {
                                                     final customerService =
                                                         CustomerService();
@@ -293,6 +298,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       final userState = context.read<UserBloc>().state;
                       if (userState is UserLoadSuccess) {
                         final userId = userState.userId;
+                        // ignore: unnecessary_null_comparison
                         if (userId != null) {
                           final customerFuture =
                               CustomerService().getCustomerByUserId(userId);
