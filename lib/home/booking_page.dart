@@ -12,6 +12,7 @@ import 'package:pitstop/data/model/service/service_model.dart';
 import 'package:pitstop/home/bloc/user_bloc.dart';
 import 'package:pitstop/home/bloc/user_state.dart';
 import 'package:pitstop/admin/booking/booking_detail_form.dart';
+import 'package:pitstop/home/booking_detail_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BookingPage extends StatefulWidget {
@@ -47,6 +48,24 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
     final bookings = await _bookingService.getBookings();
     final customers = await _customerService.getCustomers();
     final mechanics = await _mechanicService.getMechanics();
+
+    // Debug prints to verify customers and bookings data
+    if (customers != null) {
+      print('DEBUG: Customers list:');
+      for (var c in customers) {
+        print('Customer usersId: ${c.usersId}, fullName: ${c.fullName}');
+      }
+    } else {
+      print('DEBUG: Customers list is null');
+    }
+    if (bookings != null) {
+      print('DEBUG: Booking usersId values:');
+      for (var b in bookings) {
+        print('Booking usersId: ${b.usersId}');
+      }
+    } else {
+      print('DEBUG: Bookings list is null');
+    }
 
     Map<String, BookingModel> groupedBookings = {};
     Map<String, List<ServiceModel>> servicesByGroup = {};
@@ -286,16 +305,16 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
                 'full_name': m.fullName,
               }).toList();
 
-              print('Profiles list passed: $profilesList');
-              print('Mechanics list passed: $mechanicsList');
+              print('Profiles list passed: $_customers');
+              print('Mechanics list passed: $_mechanics');
 
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => BookingDetailFormPage(
+                  builder: (_) => BookingDetailPage(
                     booking: booking,
                     services: services,
-                    profiles: profilesList,
-                    mechanics: mechanicsList,
+                    profiles: _customers,
+                    mechanics: _mechanics,
                   ),
                 ),
               );
