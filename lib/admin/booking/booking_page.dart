@@ -23,6 +23,7 @@ class _BookingPageState extends State<BookingPage> {
   final CustomerService _customerService = CustomerService();
   final MechanicService _mechanicService = MechanicService();
   final ServiceService _serviceService = ServiceService();
+  final Map<String, BookingModel> groupedBookings = {};
 
   List<BookingModel> _bookings = [];
   List<BookingModel> _filteredBookings = [];
@@ -40,6 +41,8 @@ class _BookingPageState extends State<BookingPage> {
       return null;
     }
   }
+
+  
 
   @override
   void initState() {
@@ -68,18 +71,16 @@ class _BookingPageState extends State<BookingPage> {
     if (bookings != null) {
       print('DEBUG: Booking usersId values:');
       for (var b in bookings) {
-        print('Booking usersId: \${b.usersId}');
+        print('Booking usersId: ${b.usersId}');
       }
     } else {
       print('DEBUG: Bookings list is null');
     }
-
-    // Group bookings by users_id to show only one ListTile per users_id
-    final Map<String, BookingModel> groupedBookings = {};
+     final Map<String, BookingModel> groupedBookings = {};
     if (bookings != null) {
       for (var booking in bookings) {
         final key =
-            '\${booking.bookingsDate?.toIso8601String().split("T")[0]}_\${booking.bookingsTime}';
+            '${booking.bookingsDate?.toIso8601String().split("T")[0]}_${booking.bookingsTime}';
         if (!groupedBookings.containsKey(key)) {
           groupedBookings[key] = booking;
         }
