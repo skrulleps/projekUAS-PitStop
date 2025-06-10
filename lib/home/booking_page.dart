@@ -14,6 +14,7 @@ import 'package:pitstop/home/bloc/user_state.dart';
 import 'package:pitstop/admin/booking/booking_detail_form.dart';
 import 'package:pitstop/home/booking_detail_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'booking_add_page.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({Key? key}) : super(key: key);
@@ -371,7 +372,21 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Implement add booking action
+          final userState = context.read<UserBloc>().state;
+          if (userState is UserLoadSuccess) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => BookingAddPage(
+                  userId: userState.userId,
+                  userFullName: userState.username ?? '',
+                ),
+              ),
+            ).then((value) {
+              if (value == true) {
+                _fetchData();
+              }
+            });
+          }
         },
         child: const Icon(Icons.add),
         backgroundColor: Colors.amber.shade800,
