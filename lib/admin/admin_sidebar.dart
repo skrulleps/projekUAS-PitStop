@@ -25,11 +25,11 @@ class _AdminSidebarState extends State<AdminSidebar> {
     child: Column(
       children: [
         // Header dengan bg hitam dan teks amber
-        const DrawerHeader(
-          decoration: BoxDecoration(
-            color: Colors.black,
-          ),
-          child: Text(
+        Container(
+          width: double.infinity,
+          color: Colors.black,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          child: const Text(
             'Admin Menu',
             style: TextStyle(color: Colors.amber, fontSize: 24),
           ),
