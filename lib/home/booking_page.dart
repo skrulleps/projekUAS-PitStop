@@ -1,25 +1,14 @@
 import 'package:flutter/material.dart';
-
-// Model sederhana untuk data item booking
-class BookingEntry {
-  final String id;
-  final String imageUrl;
-  final String garageName;
-  final String addressSnippet;
-  final String bookingRef;
-  final double garageRating;
-  final String status; // "Ongoing", "Completed", "Canceled"
-
-  const BookingEntry({
-    required this.id,
-    required this.imageUrl,
-    required this.garageName,
-    required this.addressSnippet,
-    required this.bookingRef,
-    required this.garageRating,
-    required this.status,
-  });
-}
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pitstop/data/api/booking/booking_service.dart';
+import 'package:pitstop/data/api/account/account_service.dart';
+import 'package:pitstop/data/api/mechanic/mechanic_service.dart';
+import 'package:pitstop/data/model/booking/booking_model.dart';
+import 'package:pitstop/data/model/account/user_account_model.dart';
+import 'package:pitstop/data/model/mechanic/mechanic_model.dart';
+import 'package:pitstop/home/bloc/user_bloc.dart';
+import 'package:pitstop/home/bloc/user_state.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({Key? key}) : super(key: key);
@@ -30,169 +19,74 @@ class BookingPage extends StatefulWidget {
 
 class _BookingPageState extends State<BookingPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final BookingService _bookingService = BookingService();
+  final AccountService _accountService = AccountService(Supabase.instance.client);
+  final MechanicService _mechanicService = MechanicService();
 
-  // Data contoh
-  static const List<BookingEntry> _allBookings = [
-    BookingEntry(
-      id: 'B001',
-      imageUrl: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1000&auto=format&fit=crop', // Ganti dengan URL gambar Anda
-      garageName: 'Adinath Garage',
-      addressSnippet: 'Old Ghod Dod Rd, Ram Chowk,...',
-      bookingRef: '#45889785',
-      garageRating: 3.5,
-      status: 'Ongoing',
-    ),
-    BookingEntry(
-      id: 'B002',
-      imageUrl: 'https://images.unsplash.com/photo-1629977030476-8f4d7e9eb755?q=80&w=1000&auto=format&fit=crop', // Ganti dengan URL gambar Anda
-      garageName: 'Gearheads Service Center',
-      addressSnippet: '1012 Ocean avanue, New...',
-      bookingRef: '#52145624',
-      garageRating: 4.2, // Rating bengkel
-      status: 'Ongoing',
-    ),
-    BookingEntry(
-      id: 'B003',
-      imageUrl: 'https://images.unsplash.com/photo-1581490215830-872703600734?q=80&w=1000&auto=format&fit=crop', // Ganti dengan URL gambar Anda
-      garageName: 'Shree Sai Auto Care Ceram...',
-      addressSnippet: 'Shop No. 2,3 sarjan Complex,...',
-      bookingRef: '#78525688',
-      garageRating: 3.8,
-      status: 'Completed',
-    ),
-    BookingEntry(
-      id: 'B004',
-      imageUrl: 'https://images.unsplash.com/photo-1599252628936-5ead47b27647?q=80&w=1000&auto=format&fit=crop', // Ganti dengan URL gambar Anda
-      garageName: 'QuickFix Motors',
-      addressSnippet: 'Jl. Servis Cepat No. 12',
-      bookingRef: '#12345678',
-      garageRating: 4.0,
-      status: 'Completed',
-    ),
-    BookingEntry(
-      id: 'B005',
-      imageUrl: 'https://images.unsplash.com/photo-1506521781263-d5449e827895?q=80&w=1000&auto=format&fit=crop', // Ganti dengan URL gambar Anda
-      garageName: 'AutoPro Clinic',
-      addressSnippet: 'Jl. Montir Handal Kav. 5',
-      bookingRef: '#98765432',
-      garageRating: 4.5,
-      status: 'Canceled',
-    ),
-  ];
-
-  List<BookingEntry> _getFilteredBookings(String status) {
-    return _allBookings.where((booking) => booking.status == status).toList();
-  }
+  List<BookingModel> _bookings = [];
+  List<UserAccount> _users = [];
+  List<MechanicModel> _mechanics = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
+    _fetchData();
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
+  Future<void> _fetchData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final bookings = await _bookingService.getBookings();
+    final users = await _accountService.fetchUsers();
+    final mechanics = await _mechanicService.getMechanics();
+    setState(() {
+      _bookings = bookings ?? [];
+      _users = users;
+      _mechanics = mechanics ?? [];
+      _isLoading = false;
+    });
   }
 
-  Widget _buildBookingCard(BuildContext context, BookingEntry booking) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Image.network(
-                    booking.imageUrl,
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 80,
-                      height: 80,
-                      color: Colors.grey.shade200,
-                      child: Icon(Icons.business_outlined, size: 40, color: Colors.grey.shade400),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        booking.garageName,
-                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black87),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        booking.addressSnippet,
-                        style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        booking.bookingRef,
-                        style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                      ),
-                    ],
-                  ),
-                ),
-                Row( // Rating di pojok kanan
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.star, color: Colors.amber.shade700, size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      booking.garageRating.toString(),
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12.0, 0, 12.0, 12.0),
-            child: ElevatedButton(
-              onPressed: () {
-                // TODO: Implementasi aksi lihat detail booking
-                print('View Detail tapped for ${booking.bookingRef}');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber.shade50, // Warna latar tombol yang lembut
-                foregroundColor: Colors.amber.shade800, // Warna teks tombol
-                elevation: 0, // Tidak ada bayangan untuk tombol
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-              child: const Text('View Detail', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            ),
-          ),
-        ],
-      ),
-    );
+  String _getUserName(String? userId) {
+    final user = _users.firstWhere((u) => u.id == userId, orElse: () => UserAccount(id: '', email: '', username: 'Unknown', role: ''));
+    return user.username ?? 'Unknown';
   }
 
-  Widget _buildBookingList(List<BookingEntry> bookings) {
+  String _getMechanicName(String? mechanicId) {
+    final mechanic = _mechanics.firstWhere((m) => m.id == mechanicId, orElse: () => MechanicModel(id: '', fullName: 'Unknown'));
+    return mechanic.fullName ?? 'Unknown';
+  }
+
+  List<BookingModel> _filterBookingsByStatusAndUser(String status, String userId) {
+    return _bookings.where((booking) {
+      final bookingStatus = booking.status?.toLowerCase();
+      final bookingUserId = booking.usersId ?? '';
+      if (userId.isEmpty) return false;
+      switch (status) {
+        case 'Pending':
+          return (bookingStatus == 'pending' || bookingStatus == 'Pending') && bookingUserId == userId;
+        case 'OnGoing':
+          return bookingStatus == 'on progress' && bookingUserId == userId;
+        case 'Completed':
+          return bookingStatus == 'done' && bookingUserId == userId;
+        case 'Canceled':
+          return bookingStatus == 'cancelled' && bookingUserId == userId;
+        default:
+          return false;
+      }
+    }).toList();
+  }
+  
+  Widget _buildBookingList(List<BookingModel> bookings) {
     if (bookings.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Text(
-            'Tidak ada booking dengan status ini.',
+            'Anda Belum Booking',
             style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
             textAlign: TextAlign.center,
           ),
@@ -201,8 +95,132 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
     }
     return ListView.builder(
       itemCount: bookings.length,
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       itemBuilder: (context, index) {
-        return _buildBookingCard(context, bookings[index]);
+        final booking = bookings[index];
+
+        String userFullName = _getUserName(booking.usersId);
+        String mechanicFullName = _getMechanicName(booking.mechanicsId);
+        String bookingDate = booking.bookingsDate != null
+            ? booking.bookingsDate!.toLocal().toIso8601String().split('T')[0]
+            : '-';
+        String bookingTime = booking.bookingsTime ?? '-';
+
+        Color getStatusBgColor(String? status) {
+          switch (status?.toLowerCase()) {
+            case 'pending':
+              return Colors.amber.withOpacity(0.15);
+            case 'on progress':
+              return Colors.amber.withOpacity(0.25);
+            case 'confirmed':
+              return Colors.amber.shade100;
+            case 'done':
+              return Colors.black12;
+            case 'cancelled':
+              return Colors.red.withOpacity(0.2);
+            default:
+              return Colors.transparent;
+          }
+        }
+
+        Color getStatusTextColor(String? status) {
+          switch (status?.toLowerCase()) {
+            case 'pending':
+            case 'on progress':
+            case 'confirmed':
+              return Colors.amber.shade800;
+            case 'done':
+              return Colors.black87;
+            case 'cancelled':
+              return Colors.red.shade700;
+            default:
+              return Colors.black87;
+          }
+        }
+
+        return Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          elevation: 3,
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(
+                vertical: 8, horizontal: 16),
+            title: Text(
+              userFullName,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.black87,
+              ),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Mechanic: $mechanicFullName',
+                    style: const TextStyle(color: Colors.black54),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_today,
+                          size: 16, color: Colors.black54),
+                      const SizedBox(width: 6),
+                      Text(
+                        bookingDate,
+                        style: const TextStyle(color: Colors.black54),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.access_time,
+                          size: 16, color: Colors.black54),
+                      const SizedBox(width: 6),
+                      Text(
+                        bookingTime,
+                        style: const TextStyle(color: Colors.black54),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.info_outline,
+                          size: 16, color: Colors.black54),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: getStatusBgColor(booking.status),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          booking.status ?? '-',
+                          style: TextStyle(
+                            color: getStatusTextColor(booking.status),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            onTap: () async {
+              // TODO: Implement detail view navigation if needed
+            },
+          ),
+        );
       },
     );
   }
@@ -215,29 +233,42 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
           'My Booking',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.white, // Latar AppBar putih
-        elevation: 1, // Sedikit bayangan
+        backgroundColor: Colors.white,
+        elevation: 1,
         bottom: TabBar(
           controller: _tabController,
-          labelColor: Colors.amber.shade800, // Warna teks tab yang aktif
-          unselectedLabelColor: Colors.grey.shade600, // Warna teks tab yang tidak aktif
-          indicatorColor: Colors.amber.shade800, // Warna indikator tab
+          labelColor: Colors.amber.shade800,
+          unselectedLabelColor: Colors.grey.shade600,
+          indicatorColor: Colors.amber.shade800,
           indicatorWeight: 3.0,
           tabs: const [
-            Tab(text: 'Ongoing'),
+            Tab(text: 'Pending'),
+            Tab(text: 'OnGoing'),
             Tab(text: 'Completed'),
             Tab(text: 'Canceled'),
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildBookingList(_getFilteredBookings('Ongoing')),
-          _buildBookingList(_getFilteredBookings('Completed')),
-          _buildBookingList(_getFilteredBookings('Canceled')),
-        ],
-      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : BlocBuilder<UserBloc, UserState>(
+              builder: (context, state) {
+                if (state is UserLoadSuccess) {
+                  final userId = state.userId ?? '';
+                  return TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildBookingList(_filterBookingsByStatusAndUser('Pending', userId)),
+                      _buildBookingList(_filterBookingsByStatusAndUser('OnGoing', userId)),
+                      _buildBookingList(_filterBookingsByStatusAndUser('Completed', userId)),
+                      _buildBookingList(_filterBookingsByStatusAndUser('Canceled', userId)),
+                    ],
+                  );
+                } else {
+                  return const Center(child: Text('User not logged in'));
+                }
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // TODO: Implement add booking action

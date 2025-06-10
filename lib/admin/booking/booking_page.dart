@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pitstop/admin/booking/booking_detail_form.dart';
 import 'package:pitstop/admin/booking/booking_form.dart';
 import 'package:pitstop/admin/booking/edit_booking_form.dart';
-import 'package:pitstop/admin/booking/booking_detail_form.dart';
 import 'package:pitstop/data/model/service/service_model.dart';
 import '../../data/model/booking/booking_model.dart';
 import '../../data/api/booking/booking_service.dart';
