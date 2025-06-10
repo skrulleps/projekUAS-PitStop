@@ -64,6 +64,7 @@ class CustomerService {
       final response = await _client.from('profiles').delete().eq('id', id);
 
       print('Deleted customer with id: $id');
+      print('Response: $response');
       return true;
     } catch (e) {
       print('Exception deleting customer: $e');

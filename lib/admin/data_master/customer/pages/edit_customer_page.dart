@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pitstop/data/model/customer/customer_model.dart';
-import '../../../../data/api/customer/customer_service.dart';
+import 'package:pitstop/data/api/customer/customer_service.dart';
 
 class EditCustomerPage extends StatefulWidget {
   final CustomerModel customer;
