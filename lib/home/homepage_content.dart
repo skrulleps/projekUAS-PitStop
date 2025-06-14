@@ -9,9 +9,22 @@ import 'package:pitstop/data/model/booking/booking_model.dart';
 import 'package:pitstop/data/model/service/service_model.dart';
 import 'package:pitstop/data/model/mechanic/mechanic_model.dart';
 
-class HomepageContent extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pitstop/home/bloc/user_bloc.dart';
+import 'package:pitstop/home/bloc/user_state.dart';
+import 'package:pitstop/data/api/customer/customer_service.dart';
+import 'package:pitstop/home/booking_page.dart'; // Ensure this path is correct
+
+import 'package:pitstop/data/model/booking/booking_model.dart';
+import 'package:pitstop/data/model/service/service_model.dart';
+import 'package:pitstop/data/model/mechanic/mechanic_model.dart';
+import 'package:pitstop/utils/profile_utils.dart';
+
+class HomepageContent extends StatefulWidget {
   final ValueChanged<String>? onSearchSubmitted;
   final VoidCallback? onNavigateToBooking;
+  final VoidCallback? onProfileIncomplete;
   final List<BookingModel>? bookings;
   final Map<String, List<ServiceModel>>? servicesByGroup;
   final List<MechanicModel>? mechanics;
@@ -20,10 +33,33 @@ class HomepageContent extends StatelessWidget {
     Key? key,
     this.onSearchSubmitted,
     this.onNavigateToBooking,
+    this.onProfileIncomplete,
     this.bookings,
     this.servicesByGroup,
     this.mechanics,
   }) : super(key: key);
+
+  @override
+  State<HomepageContent> createState() => _HomepageContentState();
+}
+
+class _HomepageContentState extends State<HomepageContent> {
+  @override
+  void initState() {
+    super.initState();
+    _checkProfileCompleteness();
+  }
+
+  void _checkProfileCompleteness() async {
+    final isIncomplete = await checkProfileCompleteness(context);
+    if (isIncomplete && mounted) {
+      showProfileIncompleteDialog(context, () {
+        if (widget.onProfileIncomplete != null) {
+          widget.onProfileIncomplete!();
+        }
+      });
+    }
+  }
 
   // Helper method to build a section header (e.g., "Categories" with "View All").
   Widget _buildSectionHeader(BuildContext context, String title, VoidCallback onViewAll) {
@@ -194,8 +230,8 @@ class HomepageContent extends StatelessWidget {
                       ),
                     ),
                     onSubmitted: (value) {
-                      if (onSearchSubmitted != null) {
-                        onSearchSubmitted!(value);
+                      if (widget.onSearchSubmitted != null) {
+                        widget.onSearchSubmitted!(value);
                       }
                     },
                   ),
@@ -300,8 +336,8 @@ class HomepageContent extends StatelessWidget {
                         lightAmberBg, // Light amber background for icon
                         accentColor, // Amber icon color
                         onTap: () {
-                          if (onNavigateToBooking != null) {
-                            onNavigateToBooking!();
+                          if (widget.onNavigateToBooking != null) {
+                            widget.onNavigateToBooking!();
                           }
                         },
                       ),

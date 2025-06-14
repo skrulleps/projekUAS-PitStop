@@ -5,10 +5,7 @@ import 'package:pitstop/home/history_page.dart';
 import 'homepage_content.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pitstop/home/bloc/user_bloc.dart';
-import 'package:pitstop/home/bloc/user_state.dart';
-import 'package:pitstop/data/api/customer/customer_service.dart';
-import 'package:pitstop/data/model/customer/customer_model.dart';
+import 'package:pitstop/utils/profile_utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -34,48 +31,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _checkProfileCompleteness() async {
-    final userBloc = context.read<UserBloc>().state;
-    if (userBloc is UserLoadSuccess) {
-      final userId = userBloc.userId;
-      if (userId != null && userId.isNotEmpty) {
-        final customer = await CustomerService().getCustomerByUserId(userId);
-        if (customer != null) {
-          final bool isProfileIncomplete = (customer.fullName == null || customer.fullName!.isEmpty) ||
-              (customer.phone == null || customer.phone!.isEmpty) ||
-              (customer.address == null || customer.address!.isEmpty) ||
-              (customer.photos == null || customer.photos!.isEmpty);
-          if (isProfileIncomplete) {
-            if (mounted) {
-              _showProfileIncompleteDialog();
-            }
-          }
-        }
-      }
+    final isIncomplete = await checkProfileCompleteness(context);
+    if (isIncomplete && mounted) {
+      showProfileIncompleteDialog(context, () {
+        setState(() {
+          _selectedIndex = 3; // Redirect to ProfilePage tab
+        });
+      });
     }
-  }
-
-  void _showProfileIncompleteDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Profile Incomplete'),
-          content: const Text('Please complete your profile before continuing.'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _selectedIndex = 3; // Redirect to ProfilePage tab
-                });
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void _onItemTapped(int index) {

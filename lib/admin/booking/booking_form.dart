@@ -10,7 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class BookingFormPage extends StatefulWidget {
   final BookingModel? booking;
 
-  const BookingFormPage({Key? key, this.booking}) : super(key: key);
+  const BookingFormPage({super.key, this.booking});
 
   @override
   State<BookingFormPage> createState() => _BookingFormPageState();
@@ -51,6 +51,7 @@ class _BookingFormPageState extends State<BookingFormPage> {
   Future<void> _loadProfiles() async {
     final response =
         await _client.from('profiles').select('id, full_name, users_id');
+    // ignore: unnecessary_null_comparison
     if (response == null) {
       setState(() {
         _profiles = [];
@@ -113,6 +114,7 @@ class _BookingFormPageState extends State<BookingFormPage> {
         .eq('bookings_time', booking.bookingsTime ?? '')
         .eq('mechanics_id', booking.mechanicsId ?? '')
         .eq('status', booking.status ?? '');
+    // ignore: unnecessary_null_comparison
     if (response == null) {
       _selectedServices = [];
       return;
@@ -220,6 +222,7 @@ class _BookingFormPageState extends State<BookingFormPage> {
   }
 
   // Update _selectedMechanicId setter to reload bookings if date is selected
+  // ignore: unused_element
   void _onMechanicSelected(String? mechanicId) {
     setState(() {
       _selectedMechanicId = mechanicId;
@@ -299,9 +302,11 @@ class _BookingFormPageState extends State<BookingFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     final dateText = _selectedDate != null
         ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
         : 'Pilih tanggal';
+    // ignore: unused_local_variable
     final timeText =
         _selectedTime != null ? _selectedTime!.format(context) : 'Pilih waktu';
 

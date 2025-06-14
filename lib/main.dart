@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pitstop/admin/data_master/service/pages/service_page.dart';
 import 'package:pitstop/auth/auth_repository.dart';
+import 'package:pitstop/home/profile_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -87,10 +88,10 @@ final _router = GoRouter(
         body: Center(child: Text('History Page')),
       ),
     ),
-    // GoRoute(
-    //   path: '/profile',
-    //   builder: (context, state) => const ProfilePage(),
-    // ),
+    GoRoute(
+      path: '/profile',
+      builder: (context, state) => const ProfilePage(),
+    ),
     GoRoute(
       path: '/admin',
       builder: (context, state) => const AdminDashboardPage(),
