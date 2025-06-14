@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pitstop/home/bloc/user_bloc.dart'; // Pastikan path ini sesuai dengan struktur proyek Anda
 import 'package:pitstop/home/bloc/user_state.dart'; // Pastikan path ini sesuai dengan struktur proyek Anda
+import 'package:pitstop/data/api/customer/customer_service.dart';
+
 
 // HomepageContent adalah widget StatelessWidget yang bertanggung jawab untuk menampilkan
 // seluruh konten utama di halaman beranda.
@@ -232,9 +234,31 @@ class HomepageContent extends StatelessWidget {
                                 children: [
                                   Icon(Icons.location_on_outlined, color: accentColor, size: 16), // Ikon lokasi
                                   const SizedBox(width: 4),
-                                  Text('AL, Karama', style: TextStyle(fontSize: 14, color: secondaryTextColor)), // Teks lokasi (statis)
-                                  const SizedBox(width: 4),
-                                  Icon(Icons.keyboard_arrow_down_outlined, color: secondaryTextColor, size: 16), // Ikon panah bawah
+                                  FutureBuilder(
+                                    future: () async {
+                                      final userState = context.read<UserBloc>().state;
+                                      if (userState is UserLoadSuccess) {
+                                        final userId = (userState as UserLoadSuccess).userId;
+                                        if (userId != null) {
+                                          final customerService = CustomerService();
+                                          final customer = await customerService.getCustomerByUserId(userId);
+                                          return customer?.address ?? '';
+                                        }
+                                      }
+                                      return '';
+                                    }(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return Text('Loading...', style: TextStyle(fontSize: 14, color: secondaryTextColor));
+                                      } else if (snapshot.hasError) {
+                                        return Text('Error', style: TextStyle(fontSize: 14, color: secondaryTextColor));
+                                      } else {
+                                        return Text(snapshot.data ?? '', style: TextStyle(fontSize: 14, color: secondaryTextColor));
+                                      }
+                                    },
+                                  ),
+                                  // const SizedBox(width: 4),
+                                  // Icon(Icons.keyboard_arrow_down_outlined, color: secondaryTextColor, size: 16),
                                 ],
                               ),
                             ),
@@ -242,13 +266,6 @@ class HomepageContent extends StatelessWidget {
                         ),
                       ),
                       // Tombol Ikon untuk notifikasi
-                      IconButton(
-                        icon: Icon(Icons.notifications_none_outlined, color: primaryTextColor, size: 28),
-                        onPressed: () {
-                          // TODO: Implementasi aksi ketika ikon notifikasi di-tap
-                          print('Notification bell tapped!');
-                        },
-                      ),
                     ],
                   ),
                 ),
