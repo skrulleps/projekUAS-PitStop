@@ -63,9 +63,9 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: ivoryWhite,
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: blackColor,
-        selectedItemColor: amberColor,
-        unselectedItemColor: amberColor.withOpacity(0.7),
+        backgroundColor: Colors.black,
+        selectedItemColor: Colors.black, // agar icon tetap terlihat
+        unselectedItemColor: Colors.amber,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const <BottomNavigationBarItem>[
