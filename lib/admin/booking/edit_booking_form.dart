@@ -152,9 +152,7 @@ class _EditBookingFormPageState extends State<EditBookingFormPage> {
     // if (success) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Booking berhasil diperbarui')));
       Navigator.of(context).pop(true);
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal memperbarui booking')));
-    // }
+   
   }
 
   @override
