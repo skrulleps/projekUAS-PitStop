@@ -59,8 +59,14 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
     }
   }
 
+  bool _isSaving = false;
+
   void _save() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isSaving = true;
+      });
+
       // ignore: unused_local_variable
       String? avatarPath;
       if (_photoFile != null) {
@@ -79,9 +85,16 @@ class _EditCustomerPageState extends State<EditCustomerPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('ID customer tidak valid')),
         );
+        setState(() {
+          _isSaving = false;
+        });
         return;
       }
       final success = await CustomerService().updateCustomer(customerId, updateData);
+
+      setState(() {
+        _isSaving = false;
+      });
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(

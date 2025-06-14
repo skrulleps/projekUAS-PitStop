@@ -26,9 +26,12 @@ class _ProfilePageState extends State<ProfilePage> {
       final userId = userBloc.userId;
       // ignore: unnecessary_null_comparison
       if (userId != null && userId.isNotEmpty) {
-        setState(() {
-          _customerFuture = CustomerService().getCustomerByUserId(userId);
-        });
+        if (mounted) {
+          setState(() {
+            print('Loading customer data for userId: $userId');
+            _customerFuture = CustomerService().getCustomerByUserId(userId);
+          });
+        }
       }
     }
   }
