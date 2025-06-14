@@ -43,6 +43,13 @@ class _HistoryPageState extends State<HistoryPage> {
     setState(() {
       _isLoading = true;
     });
+
+    final userBloc = context.read<UserBloc>().state;
+    String? loggedInUserId;
+    if (userBloc is UserLoadSuccess) {
+      loggedInUserId = userBloc.userId;
+    }
+
     final bookings = await _bookingService.getBookings();
     final customers = await _customerService.getCustomers();
     final mechanics = await _mechanicService.getMechanics();
@@ -50,9 +57,9 @@ class _HistoryPageState extends State<HistoryPage> {
     Map<String, BookingModel> groupedBookings = {};
     Map<String, List<ServiceModel>> servicesByGroup = {};
 
-    if (bookings != null) {
+    if (bookings != null && loggedInUserId != null) {
       for (var booking in bookings) {
-        if (booking.status?.toLowerCase() == 'done') {
+        if (booking.status?.toLowerCase() == 'done' && booking.usersId == loggedInUserId) {
           String bookingDate = booking.bookingsDate != null
               ? booking.bookingsDate!.toIso8601String().split('T')[0]
               : '-';
