@@ -14,17 +14,43 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  static final List<Widget> _pages = <Widget>[
-    const HomepageContent(),
-    const HistoryPage(),
-    const BookingPage(),
-    const ProfilePage(),
-  ];
+  List<Widget> get _pages => [
+        HomepageContent(onSearchSubmitted: _handleSearch),
+        const HistoryPage(),
+        const BookingPage(),
+        const ProfilePage(),
+      ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  void _handleSearch(String query) {
+    final lowerQuery = query.toLowerCase();
+    int newIndex = _selectedIndex;
+
+    if (lowerQuery.contains('home') || lowerQuery.contains('homepage')) {
+      newIndex = 0;
+    } else if (lowerQuery.contains('history')) {
+      newIndex = 1;
+    } else if (lowerQuery.contains('booking')) {
+      newIndex = 2;
+    } else if (lowerQuery.contains('profile')) {
+      newIndex = 3;
+    }
+
+    if (newIndex != _selectedIndex) {
+      setState(() {
+        _selectedIndex = newIndex;
+      });
+    }
   }
 
   final Color amberColor = Colors.amber;

@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pitstop/home/bloc/user_bloc.dart'; // Pastikan path ini sesuai dengan struktur proyek Anda
 import 'package:pitstop/home/bloc/user_state.dart'; // Pastikan path ini sesuai dengan struktur proyek Anda
+// Added import for BookingPage navigation
 import 'package:pitstop/data/api/customer/customer_service.dart';
+import 'package:pitstop/home/booking_page.dart';
 
 
 // HomepageContent adalah widget StatelessWidget yang bertanggung jawab untuk menampilkan
 // seluruh konten utama di halaman beranda.
 class HomepageContent extends StatelessWidget {
-  const HomepageContent({Key? key}) : super(key: key);
+  final ValueChanged<String>? onSearchSubmitted;
+
+  const HomepageContent({Key? key, this.onSearchSubmitted}) : super(key: key);
 
   // Helper method untuk membuat header sebuah bagian,
   // contohnya "Categories" dengan tombol "View All" di sebelahnya.
@@ -39,10 +43,10 @@ class HomepageContent extends StatelessWidget {
 
   // Helper method untuk membuat satu item kategori.
   // Menerima Icon, label teks, warna latar ikon, dan warna ikon.
-  Widget _buildCategoryItem(BuildContext context, IconData iconData, String label, Color iconBgColor, Color iconColor) {
+  Widget _buildCategoryItem(BuildContext context, IconData iconData, String label, Color iconBgColor, Color iconColor, {VoidCallback? onTap}) {
     return GestureDetector( // Membuat item bisa di-tap
-      onTap: () {
-        // TODO: Implementasi aksi ketika item kategori di-tap
+      onTap: onTap ?? () {
+        // Default action if no onTap provided
         print('$label category tapped');
       },
       child: Column(
@@ -299,8 +303,9 @@ class HomepageContent extends StatelessWidget {
                       ),
                     ),
                     onSubmitted: (value) {
-                      // TODO: Implementasi logika pencarian ketika user menekan enter/submit
-                      print('Search submitted: $value');
+                      if (onSearchSubmitted != null) {
+                        onSearchSubmitted!(value);
+                      }
                     },
                   ),
                 ),
@@ -397,10 +402,23 @@ class HomepageContent extends StatelessWidget {
                     children: [
                       // Menggunakan helper method _buildCategoryItem untuk setiap kategori
                       // GANTI DENGAN IKON DAN DATA KATEGORI ANDA
-                      _buildCategoryItem(context, Icons.directions_car_filled_outlined, 'Car', lightIconBg, accentColor),
-                      _buildCategoryItem(context, Icons.local_gas_station_outlined, 'Oil', lightIconBg, accentColor),
-                      _buildCategoryItem(context, Icons.settings_outlined, 'Engine', lightIconBg, accentColor),
-                      _buildCategoryItem(context, Icons.wash_outlined, 'Washing', lightIconBg, accentColor),
+                      // _buildCategoryItem(context, Icons.directions_car_filled_outlined, 'Car', lightIconBg, accentColor),r
+                      // _buildCategoryItem(context, Icons.local_gas_station_outlined, 'Oil', lightIconBg, accentColor),
+                      _buildCategoryItem(
+                        context,
+                        Icons.settings_outlined,
+                        'Engine',
+                        lightIconBg,
+                        accentColor,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const BookingPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      // _buildCategoryItem(context, Icons.wash_outlined, 'Washing', lightIconBg, accentColor),
                     ],
                   ),
                 ),
