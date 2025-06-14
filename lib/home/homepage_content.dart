@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pitstop/home/bloc/user_bloc.dart'; // Pastikan path ini sesuai dengan struktur proyek Anda
-import 'package:pitstop/home/bloc/user_state.dart'; // Pastikan path ini sesuai dengan struktur proyek Anda
-// Added import for BookingPage navigation
+import 'package:pitstop/home/bloc/user_bloc.dart';
+import 'package:pitstop/home/bloc/user_state.dart';
 import 'package:pitstop/data/api/customer/customer_service.dart';
-import 'package:pitstop/home/booking_page.dart';
+import 'package:pitstop/home/booking_page.dart'; // Ensure this path is correct
 
-
-// HomepageContent adalah widget StatelessWidget yang bertanggung jawab untuk menampilkan
-// seluruh konten utama di halaman beranda.
 import 'package:pitstop/data/model/booking/booking_model.dart';
 import 'package:pitstop/data/model/service/service_model.dart';
 import 'package:pitstop/data/model/mechanic/mechanic_model.dart';
@@ -29,203 +25,89 @@ class HomepageContent extends StatelessWidget {
     this.mechanics,
   }) : super(key: key);
 
-  // Helper method untuk membuat header sebuah bagian,
-  // contohnya "Categories" dengan tombol "View All" di sebelahnya.
+  // Helper method to build a section header (e.g., "Categories" with "View All").
   Widget _buildSectionHeader(BuildContext context, String title, VoidCallback onViewAll) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween, // Menyebar title dan tombol View All
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Teks Judul Bagian
         Text(
           title,
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Colors.black, // Changed to black
           ),
         ),
-        // Tombol Teks "View All"
         TextButton(
-          onPressed: onViewAll, // Aksi yang dijalankan ketika tombol ditekan
+          onPressed: onViewAll,
           child: Text(
             'View All',
-            style: TextStyle(color: Colors.amber.shade700, fontWeight: FontWeight.w600),
+            style: TextStyle(color: Colors.amber.shade700, fontWeight: FontWeight.w600), // Amber
           ),
         ),
       ],
     );
   }
 
-  // Helper method untuk membuat satu item kategori.
-  // Menerima Icon, label teks, warna latar ikon, dan warna ikon.
+  // Helper method to build a single category item.
   Widget _buildCategoryItem(BuildContext context, IconData iconData, String label, Color iconBgColor, Color iconColor, {VoidCallback? onTap}) {
-    return GestureDetector( // Membuat item bisa di-tap
+    return GestureDetector(
       onTap: onTap ?? () {
-        // Default action if no onTap provided
         print('$label category tapped');
       },
       child: Column(
-        mainAxisSize: MainAxisSize.min, // Kolom mengambil tinggi minimal yang dibutuhkan
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Lingkaran untuk latar belakang ikon
           CircleAvatar(
-            radius: 30, // Ukuran lingkaran
-            backgroundColor: iconBgColor, // Warna latar dari parameter
-            child: Icon(iconData, size: 28, color: iconColor), // Ikon dari parameter
+            radius: 30,
+            backgroundColor: iconBgColor,
+            child: Icon(iconData, size: 28, color: iconColor),
           ),
-          const SizedBox(height: 8), // Spasi antara ikon dan label
-          // Label teks kategori
+          const SizedBox(height: 8),
           Text(
             label,
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade700, fontWeight: FontWeight.w500),
+            style: const TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w500), // Changed to black87
           ),
         ],
       ),
     );
   }
 
-  // Helper method untuk membuat satu kartu (card) untuk informasi booking hari ini.
-  // Widget _buildBookingCard(
-  //     BuildContext context,
-  //     BookingModel booking,
-  //     List<ServiceModel> services,
-  //     MechanicModel? mechanic,
-  //     ) {
-  //   Color getStatusBgColor(String? status) {
-  //     switch (status?.toLowerCase()) {
-  //       case 'pending':
-  //         return Colors.amber.withOpacity(0.15);
-  //       case 'on progress':
-  //         return Colors.amber.withOpacity(0.25);
-  //       case 'confirmed':
-  //         return Colors.amber.shade100;
-  //       case 'done':
-  //         return Colors.black12;
-  //       case 'cancelled':
-  //         return Colors.red.withOpacity(0.2);
-  //       default:
-  //         return Colors.transparent;
-  //     }
-  //   }
-
-  //   Color getStatusTextColor(String? status) {
-  //     switch (status?.toLowerCase()) {
-  //       case 'pending':
-  //       case 'on progress':
-  //       case 'confirmed':
-  //         return Colors.amber.shade800;
-  //       case 'done':
-  //         return Colors.black87;
-  //       case 'cancelled':
-  //         return Colors.red.shade700;
-  //       default:
-  //         return Colors.black87;
-  //     }
-  //   }
-
-  //   String bookingDate = booking.bookingsDate != null
-  //       ? booking.bookingsDate!.toLocal().toIso8601String().split('T')[0]
-  //       : '-';
-  //   String bookingTime = booking.bookingsTime ?? '-';
-
-  //   return Card(
-  //     margin: const EdgeInsets.only(bottom: 16),
-  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-  //     elevation: 3,
-  //     child: Padding(
-  //       padding: const EdgeInsets.all(12.0),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text(
-  //             'Booking Date: $bookingDate',
-  //             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-  //           ),
-  //           const SizedBox(height: 4),
-  //           Text(
-  //             'Booking Time: $bookingTime',
-  //             style: const TextStyle(fontSize: 14),
-  //           ),
-  //           const SizedBox(height: 8),
-  //           Row(
-  //             children: [
-  //               const Icon(Icons.info_outline, size: 16),
-  //               const SizedBox(width: 6),
-  //               Container(
-  //                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-  //                 decoration: BoxDecoration(
-  //                   color: getStatusBgColor(booking.status),
-  //                   borderRadius: BorderRadius.circular(6),
-  //                 ),
-  //                 child: Text(
-  //                   booking.status ?? '-',
-  //                   style: TextStyle(
-  //                     color: getStatusTextColor(booking.status),
-  //                     fontWeight: FontWeight.bold,
-  //                     fontSize: 13,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //           const SizedBox(height: 8),
-  //           Text(
-  //             'Mechanic: ${mechanic?.fullName ?? 'Unknown'}',
-  //             style: const TextStyle(fontSize: 14),
-  //           ),
-  //           const SizedBox(height: 8),
-  //           Text(
-  //             'Services:',
-  //             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-  //           ),
-  //           ...services.map((service) => Text('- ${service.serviceName ?? ''}', style: const TextStyle(fontSize: 14))).toList(),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-
   @override
   Widget build(BuildContext context) {
-    // Definisi warna-warna yang sering digunakan dalam widget ini
-    final Color primaryTextColor = Colors.black87;
-    final Color secondaryTextColor = Colors.grey.shade700;
-    final Color accentColor = Colors.amber.shade700; // Warna aksen utama (kuning/amber)
-    final Color lightIconBg = Colors.amber.shade50; // Warna latar belakang terang untuk ikon kategori
+    // Define the colors for consistency.
+    final Color primaryTextColor = Colors.black;
+    final Color secondaryTextColor = Colors.black87; // Adjusted to a darker grey, close to black
+    final Color accentColor = Colors.amber.shade700; // Main accent color (amber)
+    final Color lightAmberBg = Colors.amber.shade50; // Light background for category icons
 
-    // Container utama untuk seluruh konten homepage.
-    // Diberi warna latar putih.
     return Container(
-      color: Colors.white,
-      child: SafeArea( // Memastikan konten tidak tertimpa oleh status bar atau notch
-        child: SingleChildScrollView( // Memungkinkan seluruh konten di-scroll jika melebihi tinggi layar
+      color: Colors.white, // Ensures the entire background is white
+      child: SafeArea(
+        child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0), // Padding atas dan bawah untuk seluruh konten scrollable
-            child: Column( // Menyusun semua bagian secara vertikal
-              crossAxisAlignment: CrossAxisAlignment.start, // Konten dalam kolom rata kiri
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // --- Bagian Header ---
-                // Padding horizontal untuk bagian header
+                // --- Header Section ---
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start, // Item dalam Row rata atas
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Kolom untuk salam dan lokasi (mengambil sisa ruang)
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Menggunakan BlocBuilder untuk mendapatkan nama pengguna secara dinamis
                             BlocBuilder<UserBloc, UserState>(
                               builder: (context, state) {
-                                String username = 'User'; // Nama default jika state tidak berhasil dimuat
+                                String username = 'User';
                                 if (state is UserLoadSuccess) {
-                                  username = state.username ?? 'User'; // Ambil username dari state
+                                  username = state.username ?? 'User';
                                 }
                                 return Text(
-                                  'Hello, $username 👋', // Salam dengan emoji
+                                  'Hello, $username 👋',
                                   style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
@@ -234,23 +116,22 @@ class HomepageContent extends StatelessWidget {
                                 );
                               },
                             ),
-                            const SizedBox(height: 4), // Spasi kecil
-                            // Widget InkWell membuat Row lokasi bisa di-tap
+                            const SizedBox(height: 4),
                             InkWell(
                               onTap: () {
-                                // TODO: Implementasi aksi ketika lokasi di-tap
+                                // TODO: Implement action when location is tapped
                                 print('Location tapped!');
                               },
                               child: Row(
-                                mainAxisSize: MainAxisSize.min, // Row hanya mengambil lebar yang dibutuhkan
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.location_on_outlined, color: accentColor, size: 16), // Ikon lokasi
+                                  Icon(Icons.location_on_outlined, color: accentColor, size: 16),
                                   const SizedBox(width: 4),
                                   FutureBuilder(
                                     future: () async {
                                       final userState = context.read<UserBloc>().state;
                                       if (userState is UserLoadSuccess) {
-                                        final userId = (userState as UserLoadSuccess).userId;
+                                        final userId = userState.userId;
                                         if (userId != null) {
                                           final customerService = CustomerService();
                                           final customer = await customerService.getCustomerByUserId(userId);
@@ -269,45 +150,47 @@ class HomepageContent extends StatelessWidget {
                                       }
                                     },
                                   ),
-                                  // const SizedBox(width: 4),
-                                  // Icon(Icons.keyboard_arrow_down_outlined, color: secondaryTextColor, size: 16),
                                 ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                      // Tombol Ikon untuk notifikasi
+                      // You can add a notification icon here if needed
+                      // IconButton(
+                      //   icon: Icon(Icons.notifications_none_outlined, color: primaryTextColor, size: 28),
+                      //   onPressed: () {
+                      //     // TODO: Implement notification action
+                      //     print('Notification icon tapped');
+                      //   },
+                      // ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20), // Spasi antar bagian
+                const SizedBox(height: 20),
 
                 // --- Search Bar ---
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0), // Padding horizontal untuk search bar
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'Search here', // Teks placeholder
+                      hintText: 'Search here',
                       hintStyle: TextStyle(color: Colors.grey.shade500),
-                      prefixIcon: Icon(Icons.search, color: Colors.grey.shade600), // Ikon pencarian di kiri
-                      filled: true, // Memberi warna latar pada field
-                      fillColor: Colors.grey.shade100, // Warna latar field (abu-abu muda)
-                      contentPadding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 20.0), // Padding dalam field
-                      // Border standar ketika field tidak fokus atau enable
+                      prefixIcon: Icon(Icons.search, color: Colors.black54), // Changed to black54 for softer look
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 20.0),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0), // Sudut melengkung penuh
-                        borderSide: BorderSide.none, // Tidak ada border luar jika menggunakan fillColor
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide.none,
                       ),
-                      // Border ketika field enable (bisa diganti jika ingin ada border terlihat)
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0), // Border abu-abu tipis
+                        borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
                       ),
-                      // Border ketika field sedang fokus (diketik)
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: accentColor, width: 1.5), // Border warna aksen
+                        borderSide: BorderSide(color: accentColor, width: 1.5), // Amber border when focused
                       ),
                     ),
                     onSubmitted: (value) {
@@ -323,30 +206,46 @@ class HomepageContent extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), // Sudut banner melengkung
-                    clipBehavior: Clip.antiAlias, // Memastikan konten (gambar) terpotong sesuai bentuk Card
-                    elevation: 4, // Efek bayangan banner
-                    child: Stack( // Menumpuk gambar, gradasi, dan konten teks/tombol
-                      alignment: Alignment.centerLeft, // Konten teks rata kiri tengah
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    clipBehavior: Clip.antiAlias,
+                    elevation: 4,
+                    child: Stack(
+                      alignment: Alignment.centerLeft,
                       children: [
-                        // Overlay Gradasi Gelap di atas gambar (agar teks lebih mudah dibaca)
+                        // Placeholder for the background image
+                        // If you have an image, replace this Container with Image.asset or NetworkImage
                         Container(
                           height: 160,
                           decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.black.withOpacity(0.6), Colors.transparent, Colors.transparent],
-                                begin: Alignment.centerLeft, // Gradasi dari kiri
-                                end: Alignment.centerRight,   // ke kanan
-                                stops: const [0.0, 0.7, 1.0], // Distribusi warna gradasi
-                              )
+                            color: Colors.amber.shade200, // A lighter amber as a placeholder background
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          // Example of how to add an image
+                          // child: Image.network(
+                          //   'YOUR_IMAGE_URL_HERE',
+                          //   fit: BoxFit.cover,
+                          //   width: double.infinity,
+                          // ),
+                        ),
+                        // Gradient Overlay
+                        Container(
+                          height: 160,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.black.withOpacity(0.6), Colors.transparent, Colors.transparent],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              stops: const [0.0, 0.7, 1.0],
+                            ),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        // Konten Teks dan Tombol di atas Banner
+                        // Text and Button Content
                         Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start, // Teks rata kiri
-                            mainAxisAlignment: MainAxisAlignment.center, // Vertikal di tengah (jika Stack mengizinkan)
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Text(
                                 'Get special offer',
@@ -360,14 +259,14 @@ class HomepageContent extends StatelessWidget {
                               const SizedBox(height: 12),
                               ElevatedButton(
                                 onPressed: () {
-                                  // TODO: Implementasi aksi ketika tombol "Explore Now" ditekan
+                                  // TODO: Implement action when "Explore Now" button is pressed
                                   print('Explore Now banner tapped!');
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black87, // Warna tombol
+                                  backgroundColor: Colors.black, // Button background black
                                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                                   textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), // Sudut tombol melengkung
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                 ),
                                 child: const Text('Explore Now', style: TextStyle(color: Colors.white)),
                               ),
@@ -384,41 +283,53 @@ class HomepageContent extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: _buildSectionHeader(context, "Categories", () {
-                    // TODO: Implementasi navigasi ke halaman "View All Categories"
+                    // TODO: Implement navigation to "View All Categories"
                     print('View All Categories tapped');
                   }),
                 ),
                 const SizedBox(height: 16),
-                // Daftar Kategori (menggunakan Row karena jumlahnya sedikit dan tetap)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // Menyebar item kategori secara merata
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Menggunakan helper method _buildCategoryItem untuk setiap kategori
-                      // GANTI DENGAN IKON DAN DATA KATEGORI ANDA
-                      // _buildCategoryItem(context, Icons.directions_car_filled_outlined, 'Car', lightIconBg, accentColor),r
-                      // _buildCategoryItem(context, Icons.local_gas_station_outlined, 'Oil', lightIconBg, accentColor),
                       _buildCategoryItem(
                         context,
                         Icons.settings_outlined,
                         'Booking',
-                        lightIconBg,
-                        accentColor,
+                        lightAmberBg, // Light amber background for icon
+                        accentColor, // Amber icon color
                         onTap: () {
                           if (onNavigateToBooking != null) {
                             onNavigateToBooking!();
                           }
                         },
                       ),
-                      // _buildCategoryItem(context, Icons.wash_outlined, 'Washing', lightIconBg, accentColor),
+                      // You can add more category items here following the same pattern
+                      // _buildCategoryItem(
+                      //   context,
+                      //   Icons.car_repair,
+                      //   'Repair',
+                      //   lightAmberBg,
+                      //   accentColor,
+                      // ),
+                      // _buildCategoryItem(
+                      //   context,
+                      //   Icons.local_gas_station_outlined,
+                      //   'Fuel',
+                      //   lightAmberBg,
+                      //   accentColor,
+                      // ),
+                      // _buildCategoryItem(
+                      //   context,
+                      //   Icons.more_horiz,
+                      //   'More',
+                      //   lightAmberBg,
+                      //   accentColor,
+                      // ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 28), // Spasi lebih besar sebelum bagian berikutnya
-
-                // --- Nearby Garage Section ---
-                const SizedBox(height: 24), // Padding tambahan di bagian bawah scroll
               ],
             ),
           ),
