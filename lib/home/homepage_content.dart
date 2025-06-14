@@ -9,10 +9,25 @@ import 'package:pitstop/home/booking_page.dart';
 
 // HomepageContent adalah widget StatelessWidget yang bertanggung jawab untuk menampilkan
 // seluruh konten utama di halaman beranda.
+import 'package:pitstop/data/model/booking/booking_model.dart';
+import 'package:pitstop/data/model/service/service_model.dart';
+import 'package:pitstop/data/model/mechanic/mechanic_model.dart';
+
 class HomepageContent extends StatelessWidget {
   final ValueChanged<String>? onSearchSubmitted;
+  final VoidCallback? onNavigateToBooking;
+  final List<BookingModel>? bookings;
+  final Map<String, List<ServiceModel>>? servicesByGroup;
+  final List<MechanicModel>? mechanics;
 
-  const HomepageContent({Key? key, this.onSearchSubmitted}) : super(key: key);
+  const HomepageContent({
+    Key? key,
+    this.onSearchSubmitted,
+    this.onNavigateToBooking,
+    this.bookings,
+    this.servicesByGroup,
+    this.mechanics,
+  }) : super(key: key);
 
   // Helper method untuk membuat header sebuah bagian,
   // contohnya "Categories" dengan tombol "View All" di sebelahnya.
@@ -69,113 +84,106 @@ class HomepageContent extends StatelessWidget {
     );
   }
 
-  // Helper method untuk membuat satu kartu (card) untuk informasi bengkel.
-  Widget _buildGarageCard(
-      BuildContext context,
-      String imageUrl,    // URL gambar bengkel
-      String name,        // Nama bengkel
-      String address,     // Alamat bengkel
-      double rating,      // Rating bengkel
-      bool isOpen,        // Status buka/tutup bengkel
-      ) {
-    return Card(
-      margin: const EdgeInsets.only(right: 16), // Margin kanan untuk spasi antar kartu di ListView horizontal
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), // Sudut kartu melengkung
-      elevation: 3, // Efek bayangan kartu
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.65, // Lebar kartu sekitar 65% dari lebar layar
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, // Teks dan elemen rata kiri
-          children: [
-            Stack( // Digunakan untuk menumpuk tag "Open" di atas gambar
-              children: [
-                // Gambar bengkel dengan sudut atas melengkung
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
-                  ),
-                  child: Image.network(
-                    imageUrl, // URL gambar dari parameter
-                    height: 120, // Tinggi gambar
-                    width: double.infinity, // Lebar gambar mengisi kartu
-                    fit: BoxFit.cover, // Gambar di-crop agar pas
-                    // Widget yang ditampilkan jika gambar gagal dimuat
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      height: 120,
-                      color: Colors.grey.shade300,
-                      child: const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 40)),
-                    ),
-                  ),
-                ),
-                // Tag "Open" jika bengkel buka
-                if (isOpen)
-                  Positioned( // Diposisikan di kanan atas gambar
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade600, // Latar hijau untuk status "Open"
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        'Open',
-                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            // Padding untuk konten teks di bawah gambar
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Nama Bengkel
-                  Text(
-                    name,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                    maxLines: 1, // Maksimal 1 baris
-                    overflow: TextOverflow.ellipsis, // Tampilkan "..." jika teks terlalu panjang
-                  ),
-                  const SizedBox(height: 4),
-                  // Alamat Bengkel
-                  Row(
-                    children: [
-                      Icon(Icons.location_on_outlined, size: 14, color: Colors.grey.shade600),
-                      const SizedBox(width: 4),
-                      Expanded( // Agar teks alamat bisa mengambil sisa ruang dan menampilkan ellipsis jika panjang
-                        child: Text(
-                          address,
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  // Rating Bengkel
-                  Row(
-                    children: [
-                      Icon(Icons.star, color: Colors.amber.shade700, size: 16), // Ikon bintang
-                      const SizedBox(width: 4),
-                      Text(
-                        rating.toString(), // Teks rating
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black54),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Helper method untuk membuat satu kartu (card) untuk informasi booking hari ini.
+  // Widget _buildBookingCard(
+  //     BuildContext context,
+  //     BookingModel booking,
+  //     List<ServiceModel> services,
+  //     MechanicModel? mechanic,
+  //     ) {
+  //   Color getStatusBgColor(String? status) {
+  //     switch (status?.toLowerCase()) {
+  //       case 'pending':
+  //         return Colors.amber.withOpacity(0.15);
+  //       case 'on progress':
+  //         return Colors.amber.withOpacity(0.25);
+  //       case 'confirmed':
+  //         return Colors.amber.shade100;
+  //       case 'done':
+  //         return Colors.black12;
+  //       case 'cancelled':
+  //         return Colors.red.withOpacity(0.2);
+  //       default:
+  //         return Colors.transparent;
+  //     }
+  //   }
+
+  //   Color getStatusTextColor(String? status) {
+  //     switch (status?.toLowerCase()) {
+  //       case 'pending':
+  //       case 'on progress':
+  //       case 'confirmed':
+  //         return Colors.amber.shade800;
+  //       case 'done':
+  //         return Colors.black87;
+  //       case 'cancelled':
+  //         return Colors.red.shade700;
+  //       default:
+  //         return Colors.black87;
+  //     }
+  //   }
+
+  //   String bookingDate = booking.bookingsDate != null
+  //       ? booking.bookingsDate!.toLocal().toIso8601String().split('T')[0]
+  //       : '-';
+  //   String bookingTime = booking.bookingsTime ?? '-';
+
+  //   return Card(
+  //     margin: const EdgeInsets.only(bottom: 16),
+  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  //     elevation: 3,
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(12.0),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             'Booking Date: $bookingDate',
+  //             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+  //           ),
+  //           const SizedBox(height: 4),
+  //           Text(
+  //             'Booking Time: $bookingTime',
+  //             style: const TextStyle(fontSize: 14),
+  //           ),
+  //           const SizedBox(height: 8),
+  //           Row(
+  //             children: [
+  //               const Icon(Icons.info_outline, size: 16),
+  //               const SizedBox(width: 6),
+  //               Container(
+  //                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+  //                 decoration: BoxDecoration(
+  //                   color: getStatusBgColor(booking.status),
+  //                   borderRadius: BorderRadius.circular(6),
+  //                 ),
+  //                 child: Text(
+  //                   booking.status ?? '-',
+  //                   style: TextStyle(
+  //                     color: getStatusTextColor(booking.status),
+  //                     fontWeight: FontWeight.bold,
+  //                     fontSize: 13,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           const SizedBox(height: 8),
+  //           Text(
+  //             'Mechanic: ${mechanic?.fullName ?? 'Unknown'}',
+  //             style: const TextStyle(fontSize: 14),
+  //           ),
+  //           const SizedBox(height: 8),
+  //           Text(
+  //             'Services:',
+  //             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+  //           ),
+  //           ...services.map((service) => Text('- ${service.serviceName ?? ''}', style: const TextStyle(fontSize: 14))).toList(),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
 
   @override
@@ -321,19 +329,6 @@ class HomepageContent extends StatelessWidget {
                     child: Stack( // Menumpuk gambar, gradasi, dan konten teks/tombol
                       alignment: Alignment.centerLeft, // Konten teks rata kiri tengah
                       children: [
-                        // Gambar Latar Banner
-                        Image.network(
-                          'https://images.unsplash.com/photo-1553524032-99cecafa2a6c?q=80&w=1000&auto=format&fit=crop', // GANTI DENGAN URL GAMBAR ANDA
-                          height: 160,
-                          width: double.infinity,
-                          fit: BoxFit.cover, // Gambar memenuhi area banner
-                          // Penanganan jika gambar gagal dimuat
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            height: 160,
-                            color: Colors.grey.shade300,
-                            child: const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 50)),
-                          ),
-                        ),
                         // Overlay Gradasi Gelap di atas gambar (agar teks lebih mudah dibaca)
                         Container(
                           height: 160,
@@ -407,15 +402,13 @@ class HomepageContent extends StatelessWidget {
                       _buildCategoryItem(
                         context,
                         Icons.settings_outlined,
-                        'Engine',
+                        'Booking',
                         lightIconBg,
                         accentColor,
                         onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const BookingPage(),
-                            ),
-                          );
+                          if (onNavigateToBooking != null) {
+                            onNavigateToBooking!();
+                          }
                         },
                       ),
                       // _buildCategoryItem(context, Icons.wash_outlined, 'Washing', lightIconBg, accentColor),
@@ -425,58 +418,6 @@ class HomepageContent extends StatelessWidget {
                 const SizedBox(height: 28), // Spasi lebih besar sebelum bagian berikutnya
 
                 // --- Nearby Garage Section ---
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: _buildSectionHeader(context, "Nearby Garage", () {
-                    // TODO: Implementasi navigasi ke halaman "View All Nearby Garages"
-                    print('View All Nearby Garage tapped');
-                  }),
-                ),
-                const SizedBox(height: 16),
-                // Container dengan tinggi tetap untuk ListView horizontal
-                SizedBox(
-                  height: 235, // Sesuaikan tinggi ini agar kartu bengkel terlihat baik
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal, // Scroll ke samping
-                    padding: const EdgeInsets.only(left: 16.0), // Padding kiri untuk item pertama agar tidak terlalu mepet
-                    itemCount: 3, // GANTI DENGAN JUMLAH BENGKEL SEBENARNYA ATAU DARI API
-                    itemBuilder: (context, index) {
-                      // Data dummy untuk bengkel. GANTI DENGAN DATA DINAMIS DARI BACKEND/API Anda.
-                      final garages = [
-                        {
-                          'name': 'Supreme Service Center',
-                          'address': '1012 Ocean Avenue, New...',
-                          'rating': 4.2,
-                          'isOpen': true,
-                          'imageUrl': 'https://images.unsplash.com/photo-1629977030476-8f4d7e9eb755?q=80&w=1000&auto=format&fit=crop' // GANTI GAMBAR
-                        },
-                        {
-                          'name': 'Gearheads Auto Repair',
-                          'address': '1012 Ocean Avenue, New...',
-                          'rating': 4.5,
-                          'isOpen': false,
-                          'imageUrl': 'https://images.unsplash.com/photo-1581490215830-872703600734?q=80&w=1000&auto=format&fit=crop' // GANTI GAMBAR
-                        },
-                        {
-                          'name': 'QuickFix Motors',
-                          'address': '789 Service Rd, Townsville',
-                          'rating': 4.0,
-                          'isOpen': true,
-                          'imageUrl': 'https://images.unsplash.com/photo-1599252628936-5ead47b27647?q=80&w=1000&auto=format&fit=crop' // GANTI GAMBAR
-                        },
-                      ];
-                      // Menggunakan helper method _buildGarageCard untuk setiap item bengkel
-                      return _buildGarageCard(
-                        context,
-                        garages[index]['imageUrl'] as String,
-                        garages[index]['name'] as String,
-                        garages[index]['address'] as String,
-                        garages[index]['rating'] as double,
-                        garages[index]['isOpen'] as bool,
-                      );
-                    },
-                  ),
-                ),
                 const SizedBox(height: 24), // Padding tambahan di bagian bawah scroll
               ],
             ),
