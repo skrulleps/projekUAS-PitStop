@@ -1,4 +1,4 @@
-# pitstop
+# pitstop.
 
 A new Flutter project.
 
