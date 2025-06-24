@@ -1,26 +1,67 @@
-# pitstop.
+# PitStop Admin
 
-A new Flutter project.
+PitStop is a Flutter-based admin application designed to manage service bookings, customers, mechanics, and services for an automotive service business.
 
-## Flutter Version
-- Flutter 3.27.2
-- channel stable
-- https://github.com/flutter/flutter.git Framework 
-- revision 68415ad1d9 (4 months ago) 
-- 2025-01-13 10:22:03 -0800 Engine 
-- revision e672b006cb Tools 
-- Dart 3.6.1 
-- DevTools 2.40.2
+## Features
+
+- User authentication with login and registration.
+- Admin dashboard with navigation to various data management pages.
+- Customer management: View and manage customer data.
+- Mechanic management: View, add, and edit mechanic information.
+- Service management: Manage types of services offered.
+- Booking management: View and manage service bookings.
+- PDF report generation for bookings with detailed tables showing user, mechanic, services, date, time, status, notes, and total price.
+- Localization support for Indonesian language and currency formatting.
+- State management using Flutter Bloc.
+- Routing with GoRouter for smooth page transitions.
+- Integration with Supabase backend for data storage and authentication.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Prerequisites
 
-A few resources to get you started if this is your first Flutter project:
+- Flutter 3.27.2 or later
+- Dart 3.6.1 or later
+- Supabase account and project for backend services
+- Environment variables configured in `.env` file for Supabase URL and Key
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Installation
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Clone the repository:
+   ```
+   git clone <repository-url>
+   ```
+2. Navigate to the project directory:
+   ```
+   cd pitstop
+   ```
+3. Install dependencies:
+   ```
+   flutter pub get
+   ```
+4. Configure environment variables in `.env` file:
+   ```
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_KEY=your_supabase_anon_key
+   ```
+5. Run the app:
+   ```
+   flutter run
+   ```
+
+## Project Structure
+
+- `lib/main.dart`: Application entry point, routing, and app initialization.
+- `lib/admin/`: Contains admin-related pages and features including booking, customer, mechanic, and service management.
+- `lib/auth/`: Authentication pages and logic.
+- `lib/data/`: Data models and utilities including PDF generation helpers.
+- `lib/home/`: User home and profile pages.
+- `lib/utils/`: Utility functions and helpers.
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+For more information, refer to the Flutter documentation and the Supabase documentation for backend integration.
