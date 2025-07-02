@@ -7,7 +7,10 @@ import 'package:pitstop/data/api/customer/customer_service.dart';
 import 'package:pitstop/data/model/booking/booking_model.dart';
 import 'package:pitstop/data/model/service/service_model.dart';
 import 'package:pitstop/data/model/mechanic/mechanic_model.dart';
+import 'package:pitstop/data/model/customer/customer_model.dart';
 import 'package:pitstop/utils/profile_utils.dart';
+import 'package:intl/intl.dart';
+import 'package:pitstop/data/utils/admin_utils.dart';
 
 class HomepageContent extends StatefulWidget {
   final ValueChanged<String>? onSearchSubmitted;
@@ -32,10 +35,55 @@ class HomepageContent extends StatefulWidget {
 }
 
 class _HomepageContentState extends State<HomepageContent> {
+  final AdminUtils _adminUtils = AdminUtils();
+
+  List<BookingModel> _bookingsToday = [];
+  List<CustomerModel> _customers = [];
+  List<MechanicModel> _mechanics = [];
+  Map<String, ServiceModel> _servicesMap = {};
+  bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
     _checkProfileCompleteness();
+    _fetchDataForToday();
+  }
+
+  Future<void> _fetchDataForToday() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final userState = context.read<UserBloc>().state;
+    String? userId;
+    if (userState is UserLoadSuccess) {
+      userId = userState.userId;
+    }
+
+    try {
+      final data = await _adminUtils.fetchDataForToday();
+
+      // Filter bookings for logged-in user only
+      final allBookingsTodayDynamic = data['bookingsToday'] as List<dynamic>;
+      final allBookingsToday = allBookingsTodayDynamic.cast<BookingModel>();
+      final filteredBookingsToday = userId == null
+          ? <BookingModel>[]
+          : allBookingsToday.where((b) => b.usersId == userId).toList();
+
+      setState(() {
+        _bookingsToday = filteredBookingsToday;
+        _customers = data['customers'] as List<CustomerModel>;
+        _mechanics = data['mechanics'] as List<MechanicModel>;
+        _servicesMap = data['servicesMap'] as Map<String, ServiceModel>;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error fetching data for today: $e');
+    }
   }
 
   void _checkProfileCompleteness() async {
@@ -99,6 +147,7 @@ class _HomepageContentState extends State<HomepageContent> {
 
   @override
   Widget build(BuildContext context) {
+    final ScrollController _scrollController = ScrollController();
     // Define the colors for consistency.
     final Color primaryTextColor = Colors.black;
     final Color secondaryTextColor = Colors.black87; // Adjusted to a darker grey, close to black
@@ -325,6 +374,72 @@ class _HomepageContentState extends State<HomepageContent> {
                     ],
                   ),
                 ),
+
+                // Booking view status code here:
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: _buildSectionHeader(context, "Booking for Today", () {
+                    // TODO: Implement navigation to "View All Categories"
+                    print('View All Categories tapped');
+                  }),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    DateFormat('EEEE, MMM d, yyyy').format(DateTime.now()),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SizedBox(
+                        height: 250,
+                        child: Scrollbar(
+                          thumbVisibility: true,
+                          radius: const Radius.circular(8),
+                          child: ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            children: [
+                              FutureBuilder<Map<String, List<ServiceModel>>>(
+                                future: _adminUtils.fetchServicesForBookings(_bookingsToday, _servicesMap),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return const Center(child: CircularProgressIndicator());
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                      child: Text(
+                                        'Error: ${snapshot.error}',
+                                        style: const TextStyle(color: Colors.red),
+                                      ),
+                                    );
+                                  } else {
+                                    final servicesByBookingId = snapshot.data ?? {};
+                                    return _adminUtils.buildGroupedBookingListForDate(
+                                      _bookingsToday,
+                                      _customers,
+                                      _mechanics,
+                                      _servicesMap,
+                                      servicesByBookingId,
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
               ],
             ),
           ),
