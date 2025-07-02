@@ -207,6 +207,8 @@ class BookingService {
       return false;
     }
   }
+
+  getBookingsByMechanicAndDateRange(String s, DateTime now, DateTime endDate) {}
 }
 
 

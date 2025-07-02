@@ -37,6 +37,9 @@ class _BookingAddPageState extends State<BookingAddPage> {
 
   bool _isLoading = false;
 
+  List<BookingModel> _bookingsForSelectedDateAndMechanic = [];
+  List<BookingModel> _bookingsForNext7DaysAndMechanic = [];
+
   @override
   void initState() {
     super.initState();
@@ -110,18 +113,32 @@ class _BookingAddPageState extends State<BookingAddPage> {
     return false;
   }
 
-  List<BookingModel> _bookingsForSelectedDateAndMechanic = [];
-
   Future<void> _loadBookingsForSelectedDateAndMechanic() async {
     if (_selectedDate != null && _selectedMechanicId != null) {
-      setState(() async {
-        final bookings = await _bookingService.getBookingsByDateAndMechanic(
-            _selectedDate!, _selectedMechanicId!);
+      final bookings = await _bookingService.getBookingsByDateAndMechanic(
+          _selectedDate!, _selectedMechanicId!);
+      setState(() {
         _bookingsForSelectedDateAndMechanic = bookings ?? [];
       });
     } else {
       setState(() {
         _bookingsForSelectedDateAndMechanic = [];
+      });
+    }
+  }
+
+  Future<void> _loadBookingsForNext7DaysAndMechanic() async {
+    if (_selectedMechanicId != null) {
+      final now = DateTime.now();
+      final endDate = now.add(const Duration(days: 7));
+      final bookings = await _bookingService.getBookingsByMechanicAndDateRange(
+          _selectedMechanicId!, now, endDate);
+      setState(() {
+        _bookingsForNext7DaysAndMechanic = bookings ?? [];
+      });
+    } else {
+      setState(() {
+        _bookingsForNext7DaysAndMechanic = [];
       });
     }
   }
@@ -142,6 +159,7 @@ class _BookingAddPageState extends State<BookingAddPage> {
     if (_selectedDate != null) {
       _loadBookingsForSelectedDateAndMechanic();
     }
+    _loadBookingsForNext7DaysAndMechanic();
   }
 
   Future<void> _saveBooking() async {
@@ -265,67 +283,77 @@ class _BookingAddPageState extends State<BookingAddPage> {
                         scrollDirection: Axis.horizontal,
                         itemCount: _generateNext7Days().length,
                         itemBuilder: (context, index) {
-                          final date = _generateNext7Days()[index];
-                          final isSelected = _selectedDate != null &&
-                              date.year == _selectedDate!.year &&
-                              date.month == _selectedDate!.month &&
-                              date.day == _selectedDate!.day;
-                          final isFriday = date.weekday == DateTime.friday;
-                          return GestureDetector(
-                            onTap: isFriday
-                                ? null
-                                : () async {
-                                    _onDateSelected(date);
-                                    await _loadBookingsForSelectedDateAndMechanic();
-                                  },
-                            child: Container(
-                              width: 60,
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              decoration: BoxDecoration(
-                                color: isFriday
-                                    ? Colors.grey[300]
-                                    : isSelected
-                                        ? Colors.amber[700]
-                                        : Colors.grey[100],
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? Colors.black
-                                      : Colors.grey[400]!,
-                                  width: 1,
+                      final date = _generateNext7Days()[index];
+                      final isSelected = _selectedDate != null &&
+                          date.year == _selectedDate!.year &&
+                          date.month == _selectedDate!.month &&
+                          date.day == _selectedDate!.day;
+                      final isFriday = date.weekday == DateTime.friday;
+
+                      // Disable date if any booking exists on that date for selected mechanic
+                      final isBookedDate = _bookingsForNext7DaysAndMechanic.any((booking) {
+                        final bookingDate = booking.bookingsDate;
+                        if (bookingDate == null) return false;
+                        return bookingDate.year == date.year &&
+                            bookingDate.month == date.month &&
+                            bookingDate.day == date.day;
+                      });
+
+                      return GestureDetector(
+                        onTap: (isFriday || isBookedDate)
+                            ? null
+                            : () async {
+                                _onDateSelected(date);
+                                await _loadBookingsForSelectedDateAndMechanic();
+                              },
+                        child: Container(
+                          width: 60,
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          decoration: BoxDecoration(
+                            color: (isFriday || isBookedDate)
+                                ? Colors.grey[300]
+                                : isSelected
+                                    ? Colors.amber[700]
+                                    : Colors.grey[100],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isSelected
+                                  ? Colors.black
+                                  : Colors.grey[400]!,
+                              width: 1,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                DateFormat.E().format(date),
+                                style: TextStyle(
+                                  color: (isFriday || isBookedDate)
+                                      ? Colors.grey
+                                      : isSelected
+                                          ? Colors.black
+                                          : Colors.black87,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              alignment: Alignment.center,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    DateFormat.E().format(date),
-                                    style: TextStyle(
-                                      color: isFriday
-                                          ? Colors.grey
-                                          : isSelected
-                                              ? Colors.black
-                                              : Colors.black87,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${date.day}',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: isFriday
-                                          ? Colors.grey
-                                          : isSelected
-                                              ? Colors.black
-                                              : Colors.black87,
-                                    ),
-                                  ),
-                                ],
+                              Text(
+                                '${date.day}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: (isFriday || isBookedDate)
+                                      ? Colors.grey
+                                      : isSelected
+                                          ? Colors.black
+                                          : Colors.black87,
+                                ),
                               ),
-                            ),
-                          );
+                            ],
+                          ),
+                        ),
+                      );
                         },
                       ),
                     ),
@@ -345,11 +373,27 @@ class _BookingAddPageState extends State<BookingAddPage> {
                         final isSelected = _selectedTime != null &&
                             _selectedTime!.hour == slot.hour &&
                             _selectedTime!.minute == slot.minute;
+
+                        // Disable time slot if it is before current time on the selected date (if today)
+                        bool isPastTime = false;
+                        if (_selectedDate != null) {
+                          final now = TimeOfDay.now();
+                          final today = DateTime.now();
+                          if (_selectedDate!.year == today.year &&
+                              _selectedDate!.month == today.month &&
+                              _selectedDate!.day == today.day) {
+                            if (slot.hour < now.hour ||
+                                (slot.hour == now.hour && slot.minute <= now.minute)) {
+                              isPastTime = true;
+                            }
+                          }
+                        }
+
                         return ChoiceChip(
                           label: Text(
                               '${slot.hour.toString().padLeft(2, '0')}:00'),
                           selected: isSelected,
-                          onSelected: isBooked
+                          onSelected: (isBooked || isPastTime)
                               ? null
                               : (selected) {
                                   if (selected)
@@ -359,7 +403,7 @@ class _BookingAddPageState extends State<BookingAddPage> {
                           disabledColor: Colors.grey[300],
                           backgroundColor: Colors.grey[100],
                           labelStyle: TextStyle(
-                            color: isBooked
+                            color: (isBooked || isPastTime)
                                 ? Colors.grey
                                 : isSelected
                                     ? Colors.black
