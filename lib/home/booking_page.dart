@@ -12,9 +12,12 @@ import 'package:pitstop/home/bloc/user_bloc.dart';
 import 'package:pitstop/home/bloc/user_state.dart';
 import 'package:pitstop/home/booking_detail_page.dart';
 import 'booking_add_page.dart';
+import 'profile_page.dart';
 
 class BookingPage extends StatefulWidget {
-  const BookingPage({Key? key}) : super(key: key);
+  final VoidCallback? onRequestProfileTab;
+
+  const BookingPage({Key? key, this.onRequestProfileTab}) : super(key: key);
 
   @override
   State<BookingPage> createState() => _BookingPageState();
@@ -25,6 +28,7 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
   final BookingService _bookingService = BookingService();
   final CustomerService _customerService = CustomerService();
   final MechanicService _mechanicService = MechanicService();
+  
 
   List<BookingModel> _bookings = [];
   List<CustomerModel> _customers = [];
@@ -368,21 +372,53 @@ class _BookingPageState extends State<BookingPage> with SingleTickerProviderStat
               },
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           final userState = context.read<UserBloc>().state;
           if (userState is UserLoadSuccess) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => BookingAddPage(
-                  userId: userState.userId,
-                  userFullName: userState.username ?? '',
+            // Find the current user's fullName from _customers
+            final currentUser = _customers.firstWhere(
+              (customer) => customer.usersId == userState.userId,
+              orElse: () => CustomerModel(usersId: '', fullName: ''),
+            );
+
+            final fullName = currentUser.fullName ?? '';
+
+            if (fullName.isEmpty) {
+              // Show alert dialog and navigate to ProfilePage
+              await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Profile Incomplete'),
+                  content: const Text('Please complete your profile before adding a booking.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
                 ),
-              ),
-            ).then((value) {
-              if (value == true) {
-                _fetchData();
+              );
+              // Navigate to ProfilePage for editing
+              if (widget.onRequestProfileTab != null) {
+                widget.onRequestProfileTab!();
               }
-            });
+            } else {
+              // Proceed to BookingAddPage
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => BookingAddPage(
+                    userId: userState.userId,
+                    userFullName: fullName,
+                  ),
+                ),
+              ).then((value) {
+                if (value == true) {
+                  _fetchData();
+                }
+              });
+            }
           }
         },
         child: const Icon(Icons.add),

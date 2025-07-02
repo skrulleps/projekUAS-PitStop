@@ -27,7 +27,13 @@ List<Widget> get _pages => [
           },
         ),
         const HistoryPage(),
-        const BookingPage(),
+        BookingPage(
+          onRequestProfileTab: () {
+            setState(() {
+              _selectedIndex = 3;
+            });
+          },
+        ),
         const ProfilePage(),
       ];
 
