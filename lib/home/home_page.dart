@@ -17,8 +17,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  List<Widget> get _pages => [
-        HomepageContent(onSearchSubmitted: _handleSearch),
+List<Widget> get _pages => [
+        HomepageContent(
+          onSearchSubmitted: _handleSearch,
+          onNavigateToBooking: () {
+            setState(() {
+              _selectedIndex = 2;
+            });
+          },
+        ),
         const HistoryPage(),
         const BookingPage(),
         const ProfilePage(),

@@ -192,14 +192,6 @@ class _HomepageContentState extends State<HomepageContent> {
                           ],
                         ),
                       ),
-                      // You can add a notification icon here if needed
-                      // IconButton(
-                      //   icon: Icon(Icons.notifications_none_outlined, color: primaryTextColor, size: 28),
-                      //   onPressed: () {
-                      //     // TODO: Implement notification action
-                      //     print('Notification icon tapped');
-                      //   },
-                      // ),
                     ],
                   ),
                 ),
@@ -341,28 +333,7 @@ class _HomepageContentState extends State<HomepageContent> {
                           }
                         },
                       ),
-                      // You can add more category items here following the same pattern
-                      // _buildCategoryItem(
-                      //   context,
-                      //   Icons.car_repair,
-                      //   'Repair',
-                      //   lightAmberBg,
-                      //   accentColor,
-                      // ),
-                      // _buildCategoryItem(
-                      //   context,
-                      //   Icons.local_gas_station_outlined,
-                      //   'Fuel',
-                      //   lightAmberBg,
-                      //   accentColor,
-                      // ),
-                      // _buildCategoryItem(
-                      //   context,
-                      //   Icons.more_horiz,
-                      //   'More',
-                      //   lightAmberBg,
-                      //   accentColor,
-                      // ),
+                  
                     ],
                   ),
                 ),
