@@ -43,11 +43,44 @@ class _HomepageContentState extends State<HomepageContent> {
   Map<String, ServiceModel> _servicesMap = {};
   bool _isLoading = true;
 
+  late Future<Map<String, List<ServiceModel>>> _servicesFuture;
+
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  List<String> _searchOptions = ['Booking', 'History', 'Profile'];
+  List<String> _filteredSearchOptions = [];
+
   @override
   void initState() {
     super.initState();
     _checkProfileCompleteness();
+
+    // Initialize _servicesFuture with empty data to avoid late initialization error
+    _servicesFuture = _adminUtils.fetchServicesForBookings([], {});
+
     _fetchDataForToday();
+
+    _searchController.addListener(_onSearchTextChanged);
+    _filteredSearchOptions = List.from(_searchOptions);
+  }
+
+  void _onSearchTextChanged() {
+    final query = _searchController.text.toLowerCase();
+    if (!_searchFocusNode.hasFocus) {
+      return;
+    }
+    setState(() {
+      _filteredSearchOptions = _searchOptions
+          .where((option) => option.toLowerCase().contains(query))
+          .toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchDataForToday() async {
@@ -77,6 +110,7 @@ class _HomepageContentState extends State<HomepageContent> {
         _mechanics = data['mechanics'] as List<MechanicModel>;
         _servicesMap = data['servicesMap'] as Map<String, ServiceModel>;
         _isLoading = false;
+        _servicesFuture = _adminUtils.fetchServicesForBookings(_bookingsToday, _servicesMap);
       });
     } catch (e) {
       setState(() {
@@ -237,32 +271,68 @@ class _HomepageContentState extends State<HomepageContent> {
                 // --- Search Bar ---
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search here',
-                      hintStyle: TextStyle(color: Colors.grey.shade500),
-                      prefixIcon: Icon(Icons.search, color: Colors.black54), // Changed to black54 for softer look
-                      filled: true,
-                      fillColor: Colors.grey.shade100,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 20.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide.none,
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        decoration: InputDecoration(
+                          hintText: 'Search here',
+                          hintStyle: TextStyle(color: Colors.grey.shade500),
+                          prefixIcon: Icon(Icons.search, color: Colors.black54),
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 20.0),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                            borderSide: BorderSide(color: accentColor, width: 1.5),
+                          ),
+                        ),
+                        onSubmitted: (value) {
+                          if (widget.onSearchSubmitted != null) {
+                            widget.onSearchSubmitted!(value);
+                          }
+                        },
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        borderSide: BorderSide(color: accentColor, width: 1.5), // Amber border when focused
-                      ),
-                    ),
-                    onSubmitted: (value) {
-                      if (widget.onSearchSubmitted != null) {
-                        widget.onSearchSubmitted!(value);
-                      }
-                    },
+                      if (_searchFocusNode.hasFocus && _filteredSearchOptions.isNotEmpty)
+                        Container(
+                          margin: const EdgeInsets.only(top: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _filteredSearchOptions.length,
+                            itemBuilder: (context, index) {
+                              final option = _filteredSearchOptions[index];
+                              return ListTile(
+                                title: Text(option),
+                                onTap: () {
+                                  _searchController.text = option;
+                                  _searchFocusNode.unfocus();
+                                  _handleSearchSelection(option);
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -412,7 +482,7 @@ class _HomepageContentState extends State<HomepageContent> {
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             children: [
                               FutureBuilder<Map<String, List<ServiceModel>>>(
-                                future: _adminUtils.fetchServicesForBookings(_bookingsToday, _servicesMap),
+                                future: _servicesFuture,
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState == ConnectionState.waiting) {
                                     return const Center(child: CircularProgressIndicator());
@@ -446,5 +516,25 @@ class _HomepageContentState extends State<HomepageContent> {
         ),
       ),
     );
+  }
+
+  void _handleSearchSelection(String option) {
+    switch (option.toLowerCase()) {
+      case 'booking':
+        if (widget.onNavigateToBooking != null) {
+          widget.onNavigateToBooking!();
+        }
+        break;
+      case 'history':
+        // TODO: Implement navigation to History page with bottom nav update
+        print('Navigate to History page');
+        break;
+      case 'profile':
+        // TODO: Implement navigation to Profile page with bottom nav update
+        print('Navigate to Profile page');
+        break;
+      default:
+        break;
+    }
   }
 }
