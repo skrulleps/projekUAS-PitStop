@@ -12,7 +12,6 @@ import 'package:pitstop/home/bloc/user_bloc.dart';
 import 'package:pitstop/home/bloc/user_state.dart';
 import 'package:pitstop/home/booking_detail_page.dart';
 import 'booking_add_page.dart';
-import 'profile_page.dart';
 
 class BookingPage extends StatefulWidget {
   final VoidCallback? onRequestProfileTab;

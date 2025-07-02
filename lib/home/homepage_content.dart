@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pitstop/home/bloc/user_bloc.dart';
 import 'package:pitstop/home/bloc/user_state.dart';
 import 'package:pitstop/data/api/customer/customer_service.dart';
-
 import 'package:pitstop/data/model/booking/booking_model.dart';
 import 'package:pitstop/data/model/service/service_model.dart';
 import 'package:pitstop/data/model/mechanic/mechanic_model.dart';

@@ -3,8 +3,6 @@ import 'package:pitstop/home/profile_page.dart';
 import 'package:pitstop/home/booking_page.dart';
 import 'package:pitstop/home/history_page.dart';
 import 'homepage_content.dart';
-
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pitstop/utils/profile_utils.dart';
 
 class HomePage extends StatefulWidget {
