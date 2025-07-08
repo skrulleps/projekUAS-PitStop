@@ -18,6 +18,9 @@ PitStop is a Flutter-based admin application designed to manage service bookings
 
 ## Getting Started
 
+### Figma Preview UI Design
+1. [Figma Design UI](https://www.figma.com/design/wUkH9LGSvuhkPjQuR0RI0i/Pit-Stop?node-id=40-188&t=eMb3jbxcnzfcn3BX-0)
+
 ### Prerequisites
 
 - Flutter 3.27.2 or later

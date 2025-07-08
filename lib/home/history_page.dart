@@ -59,7 +59,8 @@ class _HistoryPageState extends State<HistoryPage> {
 
     if (bookings != null && loggedInUserId != null) {
       for (var booking in bookings) {
-        if (booking.status?.toLowerCase() == 'done' && booking.usersId == loggedInUserId) {
+        if (booking.status?.toLowerCase() == 'done' &&
+            booking.usersId == loggedInUserId) {
           String bookingDate = booking.bookingsDate != null
               ? booking.bookingsDate!.toIso8601String().split('T')[0]
               : '-';
@@ -69,7 +70,8 @@ class _HistoryPageState extends State<HistoryPage> {
           if (!groupedBookings.containsKey(key)) {
             groupedBookings[key] = booking;
 
-            final services = await _bookingService.getServicesByUserIdAndDateTime(
+            final services =
+                await _bookingService.getServicesByUserIdAndDateTime(
               booking.usersId ?? '',
               booking.bookingsDate,
               booking.bookingsTime,
@@ -92,15 +94,13 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   String _getUserName(String? userId) {
-    final user = _customers.firstWhere(
-        (u) => u.usersId == userId,
+    final user = _customers.firstWhere((u) => u.usersId == userId,
         orElse: () => CustomerModel(usersId: '', fullName: 'Unknown'));
     return user.fullName ?? 'Unknown';
   }
 
   String _getMechanicName(String? mechanicId) {
-    final mechanic = _mechanics.firstWhere(
-        (m) => m.id == mechanicId,
+    final mechanic = _mechanics.firstWhere((m) => m.id == mechanicId,
         orElse: () => MechanicModel(id: '', fullName: 'Unknown'));
     return mechanic.fullName ?? 'Unknown';
   }
@@ -119,13 +119,16 @@ class _HistoryPageState extends State<HistoryPage> {
       );
     }
 
-    List<String> sortedKeys = bookings.map((b) {
-      String bookingDate = b.bookingsDate != null
-          ? b.bookingsDate!.toLocal().toIso8601String().split('T')[0]
-          : '-';
-      String bookingTime = b.bookingsTime ?? '-';
-      return '$bookingDate|$bookingTime';
-    }).toSet().toList()
+    List<String> sortedKeys = bookings
+        .map((b) {
+          String bookingDate = b.bookingsDate != null
+              ? b.bookingsDate!.toLocal().toIso8601String().split('T')[0]
+              : '-';
+          String bookingTime = b.bookingsTime ?? '-';
+          return '$bookingDate|$bookingTime';
+        })
+        .toSet()
+        .toList()
       ..sort((a, b) => a.compareTo(b));
 
     Color getStatusBgColor(String? status) {
@@ -173,7 +176,8 @@ class _HistoryPageState extends State<HistoryPage> {
           elevation: 3,
           margin: const EdgeInsets.symmetric(vertical: 6),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             title: Text(
               userFullName,
               overflow: TextOverflow.ellipsis,
@@ -195,7 +199,8 @@ class _HistoryPageState extends State<HistoryPage> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today, size: 16, color: Colors.black54),
+                      const Icon(Icons.calendar_today,
+                          size: 16, color: Colors.black54),
                       const SizedBox(width: 6),
                       Text(
                         bookingDate,
@@ -206,7 +211,8 @@ class _HistoryPageState extends State<HistoryPage> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.access_time, size: 16, color: Colors.black54),
+                      const Icon(Icons.access_time,
+                          size: 16, color: Colors.black54),
                       const SizedBox(width: 6),
                       Text(
                         bookingTime,
@@ -217,10 +223,12 @@ class _HistoryPageState extends State<HistoryPage> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.info_outline, size: 16, color: Colors.black54),
+                      const Icon(Icons.info_outline,
+                          size: 16, color: Colors.black54),
                       const SizedBox(width: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: getStatusBgColor(booking.status),
                           borderRadius: BorderRadius.circular(6),
@@ -240,7 +248,8 @@ class _HistoryPageState extends State<HistoryPage> {
                         tooltip: 'Cetak Struk',
                         onPressed: () {
                           final userFullName = _getUserName(booking.usersId);
-                          final mechanicFullName = _getMechanicName(booking.mechanicsId);
+                          final mechanicFullName =
+                              _getMechanicName(booking.mechanicsId);
                           _printService.printBookingDetail(
                             booking: booking,
                             services: services,
@@ -272,29 +281,24 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  
-
-    
-
-    Color getStatusBgColor(String? status) {
-      switch (status?.toLowerCase()) {
-        case 'done':
-          return Colors.green.withOpacity(0.15);
-        default:
-          return Colors.transparent;
-      }
+  Color getStatusBgColor(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'done':
+        return Colors.green.withOpacity(0.15);
+      default:
+        return Colors.transparent;
     }
+  }
 
-    Color getStatusTextColor(String? status) {
-      switch (status?.toLowerCase()) {
-        case 'done':
-          return Colors.green.shade800;
-        default:
-          return Colors.black87;
-      }
+  Color getStatusTextColor(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'done':
+        return Colors.green.shade800;
+      default:
+        return Colors.black87;
     }
+  }
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
