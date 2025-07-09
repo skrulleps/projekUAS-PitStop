@@ -83,6 +83,7 @@ flutter:
     - assets/images/bgLogo.png
     - assets/images/logobg.png
     - assets/images/bgSplash.jpg
+    - assets/images/DB-PitStop-img.png
     - .env
     - assets/fonts/NotoSans-Regular.ttf
 

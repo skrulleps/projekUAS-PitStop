@@ -16,6 +16,9 @@ PitStop is a Flutter-based admin application designed to manage service bookings
 - Routing with GoRouter for smooth page transitions.
 - Integration with Supabase backend for data storage and authentication.
 
+## Database Structure
+![DB-Pitstop-img](assets\images\DB-PitStop-img.png)
+
 ## Getting Started
 
 ### Figma Preview UI Design
